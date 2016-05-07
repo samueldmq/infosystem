@@ -1,0 +1,157 @@
+
+tests:
+
+    - name: Create a domain
+      url: /domains
+      method: POST
+      request_headers:
+          content-type: application/json
+      data:
+          name: customer
+      status: 201
+      response_json_paths:
+          $.domain.name: customer
+
+    - name: Create a user
+      url: /users
+      method: POST
+      request_headers:
+          content-type: application/json
+      data:
+          name: Jhon
+          email: jhon@example.com
+          active: true
+          password: secret
+          domain_id: $RESPONSE['$.domain.id']
+      status: 201
+      response_json_paths:
+          $.user.name: Jhon
+          $.user.email: jhon@example.com
+          $.user.active: true
+
+    - name: Get the user
+      url: /users/$RESPONSE['$.user.id']
+      method: GET
+      status: 200
+      response_json_paths:
+          $.user.name: Jhon
+          $.user.email: jhon@example.com
+          $.user.active: true
+
+    # - name: Get last user add to server
+    #   desc: We are asking the server to get the user created previous
+    #   url: /users
+    #   method: GET
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 200
+
+    # - name: Update Francois name to Francois Oliveira
+    #   desc: We are asking the server to update user name
+    #   url: /users/$RESPONSE['$.users[0].id']
+    #   method: PUT
+    #   request_headers:
+    #       content-type: application/json
+    #   data:
+    #       name: Francois Oliveira
+    #   status: 200
+    #   response_json_paths:
+    #       $.user.name: Francois Oliveira
+
+    # - name: Create second user called Samuel
+    #   desc: We are asking the server to create a new user
+    #   url: /users
+    #   method: POST
+    #   request_headers:
+    #       content-type: application/json
+    #   data:
+    #       name: Samuel
+    #       email: samueldmq@objetorelacional.com.br
+    #       active: true
+    #       password: 123456
+    #   status: 201
+
+    # - name: Create third user called Bruno
+    #   desc: We are asking the server to create a new user
+    #   url: /users
+    #   method: POST
+    #   request_headers:
+    #       content-type: application/json
+    #   data:
+    #       name: Bruno
+    #       email: bruno@objetorelacional.com.br
+    #       active: true
+    #       password: 123456
+    #   status: 201
+
+    # - name: Get all 3 users created
+    #   desc: We are asking the server to get all users
+    #   url: /users
+    #   method: GET
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 200
+
+    # - name: Get first user of the list
+    #   desc: We are asking the server to get the first user of the list returned at previous request
+    #   url: /users/$RESPONSE['$.users[0].id']
+    #   method: GET
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 200
+
+    # - name: Delete user
+    #   desc: We are asking the server to delete the user returned at previous request
+    #   url: /users/$RESPONSE['$.user.id']
+    #   method: DELETE
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 204
+
+    # - name: Get all 2 users left after delete
+    #   desc: We are asking the server to get all users
+    #   url: /users
+    #   method: GET
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 200
+
+    # - name: Get first user of the list
+    #   desc: We are asking the server to get the first user of the list returned at previous request
+    #   url: /users/$RESPONSE['$.users[0].id']
+    #   method: GET
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 200
+
+    # - name: Delete user
+    #   desc: We are asking the server to delete the user returned at previous request
+    #   url: /users/$RESPONSE['$.user.id']
+    #   method: DELETE
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 204
+
+    # - name: Get last user left after delete
+    #   desc: We are asking the server to get all users
+    #   url: /users
+    #   method: GET
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 200
+
+    # - name: Get first user of the list
+    #   desc: We are asking the server to get the first user of the list returned at previous request
+    #   url: /users/$RESPONSE['$.users[0].id']
+    #   method: GET
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 200
+
+    # - name: Delete user
+    #   desc: We are asking the server to delete the user returned at previous request
+    #   url: /users/$RESPONSE['$.user.id']
+    #   method: DELETE
+    #   request_headers:
+    #       content-type: application/json
+    #   status: 204

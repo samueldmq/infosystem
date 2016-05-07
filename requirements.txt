@@ -1,0 +1,12 @@
+# System
+flask
+flask-sqlalchemy
+flask-rbac
+gabbi
+
+# Tests
+flake8
+requests
+testtools>=1.4.0
+flask-webtest
+sphinx
