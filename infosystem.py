@@ -6,13 +6,13 @@ from infosystem import database
 from infosystem import system
 from flask import Flask
 
-app = Flask(__name__)
-app.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+application = Flask(__name__)
+application.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
-database.db.init_app(app)
-with app.app_context():
+database.db.init_app(application)
+with application.app_context():
     database.db.drop_all()
     database.db.create_all()
 
@@ -25,14 +25,14 @@ with app.app_context():
 
 
 for subsystem in system.subsystems.values():
-    app.register_blueprint(subsystem)
+    application.register_blueprint(subsystem)
 
 
-app.before_request(authorization.protect)
+application.before_request(authorization.protect)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(debug=True)
 
 def load_app():
-    return app
+    return application
