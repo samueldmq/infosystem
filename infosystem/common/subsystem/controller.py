@@ -50,10 +50,9 @@ class Controller(flask.Blueprint):
 
         try:
             entity = self.manager.create(data)
-        except Exception as exc:
-            raise exc
-            # return flask.Response(response=None,
-            #                       status=exc.http_status)
+        except exception.InfoSystemException as exc:
+            return flask.Response(response=exc.message,
+                                  status=exc.status)
 
         response = {self.entity_cls.get_name(): entity.to_dict()}
 
@@ -77,10 +76,9 @@ class Controller(flask.Blueprint):
     def list(self):
         try:
             entities = self.manager.list()
-        except Exception as exc:
-            raise exc
-            # return flask.Response(response=None,
-            #                       status=exc.http_status)
+        except exception.InfoSystemException as exc:
+            return flask.Response(response=exc.message,
+                                  status=exc.status)
 
         response = {self.entity_cls.get_collection_name(): [entity.to_dict()
                                                       for entity in entities]}
@@ -95,7 +93,7 @@ class Controller(flask.Blueprint):
         try:
            entity = self.manager.update(data, id=id)
         except exception.InfoSystemException as exc:
-            return flask.Response(response=None,
+            return flask.Response(response=exc.message,
                                   status=exc.status)
 
         response = {self.entity_cls.get_name(): entity.to_dict()}
@@ -107,10 +105,9 @@ class Controller(flask.Blueprint):
     def delete(self, id):
         try:
             self.manager.delete(id=id)
-        except Exception as exc:
-            raise exc
-            # return flask.Response(response=None,
-            #                       status=exc.http_status)
+        except exception.InfoSystemException as exc:
+            return flask.Response(response=exc.message,
+                                  status=exc.status)
 
         return flask.Response(response=None,
                               status=204,

@@ -8,37 +8,70 @@ import os
 
 
 class InfoSystemFixture(fixture.GabbiFixture):
+    """Create an entity and expose it via '<entity>_id' envvar."""
 
     def __init__(self):
         super(InfoSystemFixture, self).__init__()
 
         self.client = app.app.test_client()
 
+    @property
+    def entity_name(self):
+        return NotImplemented
 
-class UserFixture(InfoSystemFixture):
-    """Fixture for tests involving users.
+    @property
+    def collection_name(self):
+        return self.entity_name + 's'
 
-    This fixture creates 3 users and store the ID of one in 'user_id' envvar.
-
-    """
+    def new_entity(self):
+        return NotImplemented
 
     def start_fixture(self):
         headers={'Content-Type': 'application/json'}
+        self.data = self.new_entity()
 
-        self.user_ids = []
-        for i in range(3):
-            data = {'name': uuid.uuid4().hex,
-                    'email': uuid.uuid4().hex,
-                    'active': True,
-                    'password': uuid.uuid4().hex}
-            response = self.client.post('/users',
-                                        data=json.dumps(data),
-                                        headers=headers)
-            user = json.loads(response.data.decode())
-            self.user_ids.append(user['user']['id'])
+        response = self.client.post('/' + self.collection_name,
+                                    data=json.dumps(self.data),
+                                    headers=headers)
 
-        os.environ['user_id'] = self.user_ids[0]
+        self.entity = json.loads(response.data.decode())[self.entity_name]
+        os.environ[self.entity_name + '_id'] = self.entity['id']
 
     def stop_fixture(self):
-        for user_id in self.user_ids:
-            self.client.delete('/users/' + user_id)
+        self.client.delete('/' + self.collection_name + '/' +
+                           self.entity['id'])
+
+
+class DomainFixture(InfoSystemFixture):
+
+    @property
+    def entity_name(self):
+        return 'domain'
+
+    def new_entity(self):
+        return {'name': uuid.uuid4().hex,
+                'active': True}
+
+
+class UserFixture(InfoSystemFixture):
+
+    @property
+    def entity_name(self):
+        return 'domain'
+
+    def new_entity(self):
+        return {'name': uuid.uuid4().hex,
+                'email': uuid.uuid4().hex,
+                'active': True,
+                'password': uuid.uuid4().hex}
+
+
+class TokenFixture(InfoSystemFixture):
+
+    @property
+    def entity_name(self):
+        return 'token'
+
+    def new_entity(self):
+        return {'name': os.environ['user_id'],
+                'password': uuid.uuid4().hex}

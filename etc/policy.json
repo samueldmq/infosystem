@@ -2,19 +2,19 @@
     "POST /domains": ["admin"],
     "GET /domains": ["admin"], 
     "GET /domains/<id>": ["admin"],
-    "PATCH /domains/<id>": ["admin"],
+    "PUT /domains/<id>": ["admin"],
     "DELETE /domains/<id>": ["admin"],
 
     "POST /roles": ["admin"],
     "GET /roles": ["admin"], 
     "GET /roles/<id>": ["admin"],
-    "PATCH /roles/<id>": ["admin"],
+    "PUT /roles/<id>": ["admin"],
     "DELETE /roles/<id>": ["admin"],
 
     "POST /users": ["admin"],
     "GET /users": ["admin"], 
     "GET /users/<id>": ["admin"],
-    "PATCH /users/<id>": ["admin"],
+    "PUT /users/<id>": ["admin"],
     "DELETE /users/<id>": ["admin"],
 
     "POST /grants": ["admin"],

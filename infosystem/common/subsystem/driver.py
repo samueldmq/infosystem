@@ -8,18 +8,28 @@ class Driver(object):
         self.entity_cls = entity_cls
 
     def instantiate(self, **kwargs):
-        return self.entity_cls(**kwargs)
+        try:
+            instance = self.entity_cls(**kwargs)
+        except Exception:
+            # TODO(samueldmq): replace with specific exception
+            raise exception.BadRequest()
+
+        return instance
 
     def create(self, entity, session):
         session.add(entity)
 
     def update(self, id, data, session):
-        entity = self.get(id, session)
+        try:
+            entity = self.get(id, session)
+        except exc.NoResultFound:
+            raise exception.NotFound()
+
         for key, value in data.items():
             if hasattr(entity, key):
                 setattr(entity, key, value)
-            # else:
-            #     raise
+            else:
+                raise exception.BadRequest()
         session.commit()
         return entity 
 
