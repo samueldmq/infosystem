@@ -6,6 +6,7 @@ from infosystem import database
 from infosystem import system
 from flask import Flask
 
+
 app = Flask(__name__)
 app.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
