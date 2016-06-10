@@ -25,7 +25,6 @@ def enforce(roles, entry):
             return
 
         intersection = set(roles).intersection(policy[entry])
-        print(intersection)
         if not intersection:
             return flask.Response(response=None, status=401)
 
@@ -39,7 +38,7 @@ def protect():
     path = flask.request.environ['PATH_INFO'].rstrip('/')
 
     if (method, path) == POST_TOKEN:
-        return 
+        return
 
     path_bits = [UUID_REPR if check_uuid4(i) else i for i in path.split('/')]
     normalized_path = '/'.join(path_bits)
