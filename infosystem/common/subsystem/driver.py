@@ -31,7 +31,7 @@ class Driver(object):
             else:
                 raise exception.BadRequest()
         session.commit()
-        return entity 
+        return entity
 
     def delete(self, entity, session):
         session.delete(entity)

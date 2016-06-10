@@ -11,12 +11,12 @@
 # under the License.
 
 from infosystem.common.subsystem import entity
-from infosystem.database import db 
+from infosystem.database import db
 
 
 class User(entity.Entity, db.Model):
 
-    attributes = ['id', 'name', 'email', 'active']
+    attributes = ['id', 'domain_id', 'name', 'email', 'active']
     name = db.Column(db.String(80), nullable=False, unique=True)
     domain_id = db.Column(db.CHAR(32), db.ForeignKey("domain.id"), nullable=False)
     email = db.Column(db.String(80), nullable=False, unique=True)
