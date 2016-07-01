@@ -4,6 +4,7 @@ import uuid
 
 from infosystem import config
 from infosystem import system
+from infosystem.common import exception
 
 
 config = config.cfg
@@ -47,7 +48,11 @@ def protect():
     id = flask.request.headers.get('token')
 
     if id:
-        token = system.api.token.get(id=id)
+        try:
+            token = system.api.token.get(id=id)
+        except exception.NotFound:
+            return flask.Response(response=None, status=401)
+
         grants = system.api.grant.list(user_id=token.user_id)
         grants_ids = [g.role_id for g in grants]
         roles = system.api.role.list()

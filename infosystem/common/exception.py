@@ -2,7 +2,7 @@
 class InfoSystemException(Exception):
 
     status = 500
-    message = ''    
+    message = ''
 
 
 class NotFound(InfoSystemException):
@@ -16,3 +16,7 @@ class BadRequest(InfoSystemException):
     status = 400
     message = 'Provided body does not represent a valid entity'
 
+
+class BadRequestContentType(BadRequest):
+
+    message = 'Content-Type header must be application/json'

@@ -5,6 +5,7 @@ flask-rbac
 gabbi
 
 # Tests
+fixtures
 flake8
 requests
 testtools>=1.4.0

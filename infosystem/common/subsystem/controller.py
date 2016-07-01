@@ -39,14 +39,18 @@ class Controller(flask.Blueprint):
                               view_func=self.list, methods=['GET'])
         if hasattr(self.manager, 'update'):
             self.add_url_rule(self.entity_url,
-                              view_func=self.update, methods=['PUT'])
+                              view_func=self.update, methods=['PATCH'])
         if hasattr(self.manager, 'delete'):
             self.add_url_rule(self.entity_url,
                               view_func=self.delete, methods=['DELETE'])
 
-
     def create(self):
-        data = json.loads(flask.request.data.decode())
+        if not flask.request.is_json:
+            return flask.Response(
+                response=exception.BadRequestContentType.message,
+                status=exception.BadRequestContentType.status)
+
+        data = flask.request.get_json()
 
         try:
             entity = self.manager.create(data)
@@ -74,8 +78,15 @@ class Controller(flask.Blueprint):
                               mimetype="application/json")
 
     def list(self):
+        filters = {k: flask.request.args.get(k) for k in flask.request.args.keys()}
+        #TODO(samueldmq): fix this to work in a better way
+        for k,v in filters.items():
+            if v == 'True':
+                filters[k] = True
+            elif v == 'False':
+                filters[k] = False
         try:
-            entities = self.manager.list()
+            entities = self.manager.list(**filters)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)
@@ -88,7 +99,7 @@ class Controller(flask.Blueprint):
                               mimetype="application/json")
 
     def update(self, id):
-        data = json.loads(flask.request.data.decode())
+        data = flask.request.get_json()
 
         try:
            entity = self.manager.update(data, id=id)

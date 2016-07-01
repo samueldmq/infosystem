@@ -55,7 +55,7 @@ class Create(Operation):
 
 
 class Get(Operation):
-    
+
     def pre(self, id, **kwargs):
         self.id = id
 
@@ -69,7 +69,7 @@ class List(Operation):
     def do(self, session, **kwargs):
         entities = self.driver.list(session=session, **kwargs)
         return entities
- 
+
 
 class Update(Operation):
 
@@ -84,7 +84,7 @@ class Update(Operation):
 
 
 class Delete(Operation):
-    
+
     def pre(self, id, session, **kwargs):
         self.entity = self.driver.get(id, session=session)
 
