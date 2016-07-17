@@ -7,21 +7,16 @@ from infosystem.common.subsystem import manager
 
 class Controller(flask.Blueprint):
 
-    def __init__(self, entity_cls, specific_manager=None):
-        super(Controller, self).__init__(entity_cls.get_name(),
-                                         entity_cls.get_name())
+    def __init__(self, manager):
+        super(Controller, self).__init__(manager.entity_name,
+                                         manager.entity_name)
 
-        self.entity_cls = entity_cls
-        if specific_manager:
-            self.manager = specific_manager
-        else:
-            self.manager = manager.Manager(entity_cls)
-
+        self.manager = manager
         self.register_routes()
 
     @property
     def collection_url(self):
-        return '/' + self.entity_cls.get_collection_name()
+        return '/' + self.manager.collection_name
 
     @property
     def entity_url(self):
@@ -39,7 +34,7 @@ class Controller(flask.Blueprint):
                               view_func=self.list, methods=['GET'])
         if hasattr(self.manager, 'update'):
             self.add_url_rule(self.entity_url,
-                              view_func=self.update, methods=['PATCH'])
+                              view_func=self.update, methods=['PUT'])
         if hasattr(self.manager, 'delete'):
             self.add_url_rule(self.entity_url,
                               view_func=self.delete, methods=['DELETE'])
@@ -59,7 +54,7 @@ class Controller(flask.Blueprint):
                                   response=exc.message,
                                   status=exc.status)
 
-        response = {self.entity_cls.get_name(): entity.to_dict()}
+        response = {self.manager.entity_name: entity.to_dict()}
 
         return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
                               response=json.dumps(response),
@@ -74,7 +69,7 @@ class Controller(flask.Blueprint):
                                   response=exc.message,
                                   status=exc.status)
 
-        response = {self.entity_cls.get_name(): entity.to_dict()}
+        response = {self.manager.entity_name: entity.to_dict()}
 
         return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
                               response=json.dumps(response),
@@ -96,7 +91,7 @@ class Controller(flask.Blueprint):
                                   response=exc.message,
                                   status=exc.status)
 
-        response = {self.entity_cls.get_collection_name(): [entity.to_dict()
+        response = {self.manager.collection_name: [entity.to_dict()
                                                       for entity in entities]}
 
         return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
@@ -114,7 +109,7 @@ class Controller(flask.Blueprint):
                                   response=exc.message,
                                   status=exc.status)
 
-        response = {self.entity_cls.get_name(): entity.to_dict()}
+        response = {self.manager.entity_name: entity.to_dict()}
 
         return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
                               response=json.dumps(response),

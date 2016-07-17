@@ -131,7 +131,7 @@ class InfoSystemTest(object):
             headers = {'token': self.token,
                        'Content-Type': 'application/json'}
 
-        response = self.app.patch(
+        response = self.app.put(
             '/%s/%s' % (self.collection_name, resource_id),
             headers=headers,
             data=json.dumps(new_resource))

@@ -14,7 +14,7 @@ controllers = [domain.Controller(),
                user.Controller()]
 
 
-subsystems = {c.entity_cls.get_name(): c for c in controllers}
+subsystems = {c.manager.entity_name: c for c in controllers}
 
 
 class API(object):
