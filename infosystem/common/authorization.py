@@ -60,5 +60,7 @@ def protect():
         user_roles = [r.name for r in roles if r.id in grants_ids]
 
         return enforce(user_roles, entry)
+    else:
+        return flask.Response(response=None, status=401)
 
     return enforce([], entry)

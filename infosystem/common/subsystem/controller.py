@@ -91,11 +91,12 @@ class Controller(flask.Blueprint):
                                   response=exc.message,
                                   status=exc.status)
 
-        response = {self.manager.collection_name: [entity.to_dict()
-                                                      for entity in entities]}
+        response = {self.manager.collection_name: (
+            [entity if isinstance(entity, dict) else entity.to_dict()
+            for entity in entities])}
 
         return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                              response=json.dumps(response),
+                              response=json.dumps(response, default=str),
                               status=200,
                               mimetype="application/json")
 
