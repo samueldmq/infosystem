@@ -61,6 +61,10 @@ def protect():
 
         return enforce(user_roles, entry)
     else:
-        return flask.Response(response=None, status=401)
+        #FIXME(fdoliveira): Check if this will cause a break in security
+        if method == 'OPTIONS':
+            return
+        else:
+            return flask.Response(response=None, status=401)
 
     return enforce([], entry)

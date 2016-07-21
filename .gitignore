@@ -62,3 +62,12 @@ target/
 
 # PyCharm
 .idea
+
+# Visual Studio Code
+.vscode
+
+# SQL Scripts Tests
+app.db
+manage.py
+schema.sql
+migrations/
