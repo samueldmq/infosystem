@@ -1,8 +1,10 @@
 from configparser import SafeConfigParser
 
-
+# FIXME(fdoliveira) Check if read Unix style and than read windows
 config_parser = SafeConfigParser()
-config_parser.read('/etc/infosystem/infosystem.conf')
+config = config_parser.read('/etc/infosystem/infosystem.conf')
+if config == []:
+    config = config_parser.read('c:/etc/infosystem/infosystem.conf')
 
 
 class Section(object):
