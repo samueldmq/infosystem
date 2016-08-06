@@ -14,7 +14,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 database.db.init_app(app)
 with app.app_context():
-    database.db.drop_all()
     database.db.create_all()
 
     domain = system.subsystems['domain'].manager.create(data={'name': 'default'})
