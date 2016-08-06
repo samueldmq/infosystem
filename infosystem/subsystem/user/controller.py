@@ -30,8 +30,10 @@ class Controller(controller.Controller):
         self.add_url_rule('/forgot', view_func=self.forgot, methods=['GET'])
 
     def forgot(self):
+        args = {k: flask.request.args.get(k) for k in flask.request.args.keys()}
+
         try:
-            entity = self.manager.forgot()
+            entity = self.manager.forgot(**args)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)

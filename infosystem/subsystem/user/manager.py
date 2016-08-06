@@ -1,3 +1,4 @@
+from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
 
@@ -30,12 +31,11 @@ class Forgot(operation.Operation):
 
 
     def pre(self, data, **kwargs):
-        # print(kwargs['email'])
-        email = 'oliveira.francois@gmail.com'
+        email = kwargs['email']
 
         users = self.manager.api.user.list(email=email)
         if not users:
-            return False
+            raise exception.NotFound()
 
         self.user = users[0]
         self.user_id = self.user.id
