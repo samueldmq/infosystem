@@ -17,6 +17,16 @@ def check_uuid4(uuid_str):
         return False
 
 
+def unforce(entry):
+    # FIXME(samueldmq): This reads the file every request
+    with open(config.rbac.policy_file) as policy_file:
+        policy = json.load(policy_file)
+
+        if '' in policy[entry]:
+            return
+        
+        return flask.Response(response=None, status=401)
+
 def enforce(roles, entry):
     # FIXME(samueldmq): This reads the file every request
     with open(config.rbac.policy_file) as policy_file:
@@ -24,6 +34,9 @@ def enforce(roles, entry):
 
         if '*' in policy[entry]:
             return
+
+        if roles == None:
+            return flask.Response(response=None, status=401)
 
         intersection = set(roles).intersection(policy[entry])
         if not intersection:
@@ -50,7 +63,7 @@ def protect():
     if id:
         try:
             token = system.api.token.get(id=id)
-        except exception.NotFound:
+        except exception.NotFound:            
             return flask.Response(response=None, status=401)
 
         grants = system.api.grant.list(user_id=token.user_id)
@@ -60,11 +73,5 @@ def protect():
         user_roles = [r.name for r in roles if r.id in grants_ids]
 
         return enforce(user_roles, entry)
-    else:
-        #FIXME(fdoliveira): Check if this will cause a break in security
-        if method == 'OPTIONS':
-            return
-        else:
-            return flask.Response(response=None, status=401)
 
-    return enforce([], entry)
+    return unforce(entry)
