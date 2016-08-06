@@ -10,12 +10,36 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import flask
+import json
+
+from infosystem.common import exception
 from infosystem.common.subsystem import controller
-from infosystem.common.subsystem import manager
 from infosystem.subsystem.user import entity
+from infosystem.subsystem.user import manager
 
 
 class Controller(controller.Controller):
 
     def __init__(self):
         super(Controller, self).__init__(manager.Manager(entity.User))
+
+    def register_routes(self):
+        super(Controller, self).register_routes()
+
+        self.add_url_rule('/forgot', view_func=self.forgot, methods=['GET'])
+
+    def forgot(self):
+        try:
+            entity = self.manager.forgot()
+        except exception.InfoSystemException as exc:
+            return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
+                                  response=exc.message,
+                                  status=exc.status)
+
+        response = {self.manager.entity_name: entity.to_dict()}
+
+        return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
+                              response=json.dumps(response),
+                              status=200,
+                              mimetype="application/json")
