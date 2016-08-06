@@ -50,14 +50,12 @@ class Controller(flask.Blueprint):
         try:
             entity = self.manager.create(data)
         except exception.InfoSystemException as exc:
-            return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                                  response=exc.message,
+            return flask.Response(response=exc.message,
                                   status=exc.status)
 
         response = {self.manager.entity_name: entity.to_dict()}
 
-        return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                              response=json.dumps(response),
+        return flask.Response(response=json.dumps(response),
                               status=201,
                               mimetype="application/json")
 
@@ -65,14 +63,12 @@ class Controller(flask.Blueprint):
         try:
             entity = self.manager.get(id=id)
         except exception.InfoSystemException as exc:
-            return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                                  response=exc.message,
+            return flask.Response(response=exc.message,
                                   status=exc.status)
 
         response = {self.manager.entity_name: entity.to_dict()}
 
-        return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                              response=json.dumps(response),
+        return flask.Response(response=json.dumps(response),
                               status=200,
                               mimetype="application/json")
 
@@ -87,16 +83,14 @@ class Controller(flask.Blueprint):
         try:
             entities = self.manager.list(**filters)
         except exception.InfoSystemException as exc:
-            return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                                  response=exc.message,
+            return flask.Response(response=exc.message,
                                   status=exc.status)
 
         response = {self.manager.collection_name: (
             [entity if isinstance(entity, dict) else entity.to_dict()
             for entity in entities])}
 
-        return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                              response=json.dumps(response, default=str),
+        return flask.Response(response=json.dumps(response, default=str),
                               status=200,
                               mimetype="application/json")
 
@@ -106,14 +100,12 @@ class Controller(flask.Blueprint):
         try:
            entity = self.manager.update(data, id=id)
         except exception.InfoSystemException as exc:
-            return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                                  response=exc.message,
+            return flask.Response(response=exc.message,
                                   status=exc.status)
 
         response = {self.manager.entity_name: entity.to_dict()}
 
-        return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                              response=json.dumps(response),
+        return flask.Response(response=json.dumps(response),
                               status=200,
                               mimetype="application/json")
 
@@ -121,11 +113,9 @@ class Controller(flask.Blueprint):
         try:
             self.manager.delete(id=id)
         except exception.InfoSystemException as exc:
-            return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                                  response=exc.message,
+            return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                              response=None,
+        return flask.Response(response=None,
                               status=204,
                               mimetype="application/json")

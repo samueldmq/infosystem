@@ -33,13 +33,11 @@ class Controller(controller.Controller):
         try:
             entity = self.manager.forgot()
         except exception.InfoSystemException as exc:
-            return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                                  response=exc.message,
+            return flask.Response(response=exc.message,
                                   status=exc.status)
 
         response = {self.manager.entity_name: entity.to_dict()}
 
-        return flask.Response(headers={'Access-Control-Allow-Origin': '*'},
-                              response=json.dumps(response),
+        return flask.Response(response=json.dumps(response),
                               status=200,
                               mimetype="application/json")
