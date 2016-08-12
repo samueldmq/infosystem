@@ -30,9 +30,5 @@ for subsystem in system.subsystems.values():
 
 app.before_request(authorization.protect)
 
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
 def load_app():
     return app

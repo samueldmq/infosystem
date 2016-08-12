@@ -27,19 +27,42 @@ class Controller(controller.Controller):
     def register_routes(self):
         super(Controller, self).register_routes()
 
-        self.add_url_rule('/forgot', view_func=self.forgot, methods=['GET'])
+        self.add_url_rule('/users/restore', view_func=self.restore, methods=['POST'])
 
-    def forgot(self):
-        args = {k: flask.request.args.get(k) for k in flask.request.args.keys()}
+        self.add_url_rule('/users/reset', view_func=self.reset, methods=['POST'])
+
+    def restore(self):
+        if not flask.request.is_json:
+            return flask.Response(
+                response=exception.BadRequestContentType.message,
+                status=exception.BadRequestContentType.status)
+
+        data = flask.request.get_json()
 
         try:
-            entity = self.manager.forgot(**args)
+            entity = self.manager.restore(**data)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        response = {self.manager.entity_name: entity.to_dict()}
+        return flask.Response(response=None,
+                              status=200,
+                              mimetype="application/json")
 
-        return flask.Response(response=json.dumps(response),
+    def reset(self):
+        if not flask.request.is_json:
+            return flask.Response(
+                response=exception.BadRequestContentType.message,
+                status=exception.BadRequestContentType.status)
+
+        data = flask.request.get_json()
+
+        try:
+            entity = self.manager.set(data)
+        except exception.InfoSystemException as exc:
+            return flask.Response(response=exc.message,
+                                  status=exc.status)
+
+        return flask.Response(response=None,
                               status=200,
                               mimetype="application/json")

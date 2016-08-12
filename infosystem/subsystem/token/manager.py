@@ -7,14 +7,22 @@ from infosystem.common.subsystem import operation
 class Create(operation.Operation):
 
     def pre(self, data, **kwargs):
-        username = data.get('name', None)
-        password = data.get('password', None)
+        # FIXME(samueldmq): this method needs to receive the parameters
+        # explicitly.
+        if kwargs.get('user'):
+            # FIXME(samueldmq): how to avoid someone simply passing the user
+            # in the body and then having a valid token?
+            self.user = kwargs['user']
+        else:
+            username = data.get('name', None)
+            password = data.get('password', None)
 
-        users = self.manager.api.user.list(name=username, password=password)
-        if not users:
-            return False
+            users = self.manager.api.user.list(name=username, password=password)
+            if not users:
+                return False
 
-        self.user = users[0]
+            self.user = users[0]
+
         self.user_id = self.user.id
 
         return self.user.is_stable()

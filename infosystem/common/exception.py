@@ -17,6 +17,12 @@ class BadRequest(InfoSystemException):
     message = 'Provided body does not represent a valid entity'
 
 
+class OperationBadRequest(InfoSystemException):
+
+    status = 400
+    message = 'Provided body does not provide valid info for performing operation'
+
+
 class BadRequestContentType(BadRequest):
 
     message = 'Content-Type header must be application/json'
