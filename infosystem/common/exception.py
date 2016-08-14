@@ -26,3 +26,8 @@ class OperationBadRequest(InfoSystemException):
 class BadRequestContentType(BadRequest):
 
     message = 'Content-Type header must be application/json'
+
+
+class PreconditionFailed(BadRequest):
+
+    message = 'One or more preconditions failed'

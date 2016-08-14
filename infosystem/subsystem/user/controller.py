@@ -28,9 +28,10 @@ class Controller(controller.Controller):
         super(Controller, self).register_routes()
 
         self.add_url_rule('/users/restore', view_func=self.restore, methods=['POST'])
-
         self.add_url_rule('/users/reset', view_func=self.reset, methods=['POST'])
 
+    # TODO(samueldmq): this method and the one just below can share code
+    # TODO(samueldmq): make sure rbac works if open [""] and a token is passed!
     def restore(self):
         if not flask.request.is_json:
             return flask.Response(
@@ -58,7 +59,7 @@ class Controller(controller.Controller):
         data = flask.request.get_json()
 
         try:
-            entity = self.manager.set(data)
+            entity = self.manager.reset(data)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)

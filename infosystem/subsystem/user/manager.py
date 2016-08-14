@@ -1,3 +1,5 @@
+import flask
+
 from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
@@ -27,6 +29,7 @@ class Restore(operation.Operation):
             raise exception.OperationBadRequest()
 
         self.domain_id = domains[0].id
+        return True
 
     def do(self, session, **kwargs):
         token = self.manager.api.token.create(user=self.user)
@@ -38,7 +41,7 @@ class Restore(operation.Operation):
         recipient = ''
         TO = recipient if type(recipient) is list else [recipient]
         SUBJECT = 'TESTE ASSUNTO'
-        TEXT = self.reset_url + '?user_id=' + self.user_id + '&domain_id=' + self.domain_id + '&token=' + token_id
+        TEXT = self.reset_url + '?token=' + token_id
 
         # Prepare actual message
         message = """From: %s\nTo: %s\nSubject: %s\n\n%s
@@ -51,24 +54,25 @@ class Restore(operation.Operation):
             server.login(gmail_user, gmail_pwd)
             server.sendmail(FROM, TO, message)
             server.close()
-            print('successfully sent the mail')
         except:
-            print('failed to send mail')
+            # TODO(samueldmq): do something here!
+            pass
 
 
 class Reset(operation.Operation):
 
     def pre(self, data, **kwargs):
-        pass
+        self.token = flask.request.headers.get('token')
+        self.password = data.get('password')
+
+        if not (self.token and self.password):
+            raise exception.OperationBadRequest()
+        return True
 
     def do(self, session, **kwargs):
-        pass
+        token = self.manager.api.token.get(id=self.token)
+        self.manager.api.user.update(id=token.user_id, data={'password': self.password})
 
-# to reset; the params will be:
-# {'domain_id': <domain_id>,
-#  'user_id': <user_id>,
-#  'token': '',
-#  'password': 'nqjosd'}
 
 class Manager(manager.Manager):
 
@@ -76,5 +80,7 @@ class Manager(manager.Manager):
         self.create = operation.Create(self)
         self.get = operation.Get(self)
         self.list = operation.List(self)
+        self.update = operation.Update(self)
         self.delete = operation.Delete(self)
         self.restore = Restore(self)
+        self.reset = Reset(self)

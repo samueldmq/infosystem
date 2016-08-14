@@ -3,6 +3,7 @@ import uuid
 
 # TODO this import here is so strange
 from infosystem import database
+from infosystem.common import exception
 
 
 class Operation(object):
@@ -22,7 +23,9 @@ class Operation(object):
 
     def __call__(self, data=None, **kwargs):
         session = database.db.session
-        self.pre(data=data, session=session, **kwargs)
+
+        if not self.pre(data=data, session=session, **kwargs):
+            raise exception.PreconditionFailed()
 
         if not getattr(session, 'count', None):
            setattr(session, 'count', 1)
@@ -58,6 +61,7 @@ class Get(Operation):
 
     def pre(self, id, **kwargs):
         self.id = id
+        return True
 
     def do(self, session, **kwargs):
         entity = self.driver.get(self.id, session=session)
@@ -87,6 +91,7 @@ class Delete(Operation):
 
     def pre(self, id, session, **kwargs):
         self.entity = self.driver.get(id, session=session)
+        return True
 
     def do(self, session, **kwargs):
         self.driver.delete(self.entity, session=session)
