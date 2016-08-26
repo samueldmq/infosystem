@@ -81,12 +81,6 @@ class Controller(controller.Controller):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        print(policies)
-
-        # response = {"policies": (
-        #     [entity if isinstance(entity, dict) else entity.to_dict()
-        #     for entity in policies])}
-
         return flask.Response(response=json.dumps(policies, default=str),
                               status=200,
                               mimetype="application/json")
