@@ -1,11 +1,14 @@
+import json
 import flask
 
+from infosystem import config
 from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
-from infosystem.common import exception
 
 import smtplib
+
+config = config.cfg
 
 class Restore(operation.Operation):
 
@@ -74,6 +77,39 @@ class Reset(operation.Operation):
         self.manager.api.user.update(id=token.user_id, data={'password': self.password})
 
 
+class Capabilities(operation.Operation):
+
+    def pre(self, data, **kwargs):
+        self.token = flask.request.headers.get('token')
+
+        if not (self.token):
+            raise exception.OperationBadRequest()
+        return True
+
+    def do(self, session, **kwargs):
+        token = self.manager.api.token.get(id=self.token)
+        grants = self.manager.api.grant.list(user_id=token.user_id)
+        grants_ids = [g.role_id for g in grants]
+
+        roles = [r.name for r in self.manager.api.role.list()]
+
+        policies = {}
+        # FIXME(fdoliveira): This reads the file every request
+        with open(config.rbac.policy_file) as policy_file:
+            # json.load returns dict
+            policy_system = json.load(policy_file)
+
+            for k, v in policy_system.items():
+                if ('*' in v) or ('' in v):
+                    policies[k] = v
+                else:
+                    intersection = set(roles).intersection(v)
+                    if intersection:
+                        policies[k] = v
+        
+        return policies
+
+
 class Manager(manager.Manager):
 
     def register_operations(self):
@@ -84,3 +120,4 @@ class Manager(manager.Manager):
         self.delete = operation.Delete(self)
         self.restore = Restore(self)
         self.reset = Reset(self)
+        self.capabilities = Capabilities(self)

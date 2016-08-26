@@ -29,6 +29,7 @@ class Controller(controller.Controller):
 
         self.add_url_rule('/users/restore', view_func=self.restore, methods=['POST'])
         self.add_url_rule('/users/reset', view_func=self.reset, methods=['POST'])
+        self.add_url_rule('/users/capabilities', view_func=self.capabilities, methods=['GET'])
 
     # TODO(samueldmq): this method and the one just below can share code
     # TODO(samueldmq): make sure rbac works if open [""] and a token is passed!
@@ -65,5 +66,27 @@ class Controller(controller.Controller):
                                   status=exc.status)
 
         return flask.Response(response=None,
+                              status=200,
+                              mimetype="application/json")
+
+    def capabilities(self):
+        if not flask.request.is_json:
+            return flask.Response(
+                response=exception.BadRequestContentType.message,
+                status=exception.BadRequestContentType.status)
+
+        try:
+            policies = self.manager.capabilities()
+        except exception.InfoSystemException as exc:
+            return flask.Response(response=exc.message,
+                                  status=exc.status)
+
+        print(policies)
+
+        # response = {"policies": (
+        #     [entity if isinstance(entity, dict) else entity.to_dict()
+        #     for entity in policies])}
+
+        return flask.Response(response=json.dumps(policies, default=str),
                               status=200,
                               mimetype="application/json")

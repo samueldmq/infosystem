@@ -1,6 +1,6 @@
 from infosystem.common.subsystem import controller
+from infosystem.common.subsystem import manager
 from infosystem.subsystem.grant import entity
-from infosystem.subsystem.grant import manager
 
 
 class Controller(controller.Controller):
