@@ -3,6 +3,7 @@ from infosystem import database
 import os
 
 from infosystem import subsystem
+from infosystem.subsystem import scheduler
 
 
 class System(object):
@@ -13,8 +14,13 @@ class System(object):
 
         self.subsystems = {controller.manager.entity_name: controller
                            for controller in controllers}
-
         self.inject_dependencies()
+
+        self.scheduler = scheduler.Manager()
+        self.schedule_jobs()
+
+    def schedule_jobs(self):
+        pass
 
     def inject_dependencies(self):
         api = lambda: None
