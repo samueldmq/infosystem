@@ -3,7 +3,6 @@ import json
 import uuid
 
 from infosystem import config
-from infosystem import system
 from infosystem.common import exception
 
 
@@ -47,7 +46,7 @@ UUID_REPR = '<id>'
 POST_TOKEN = ('POST', '/tokens')
 
 
-def protect():
+def protect(system):
     method = flask.request.environ['REQUEST_METHOD']
     path = flask.request.environ['PATH_INFO'].rstrip('/')
 
@@ -62,13 +61,13 @@ def protect():
 
     if id:
         try:
-            token = system.api.token.get(id=id)
-        except exception.NotFound:            
+            token = system.subsystems['token'].manager.get(id=id)
+        except exception.NotFound:
             return flask.Response(response=None, status=401)
 
-        grants = system.api.grant.list(user_id=token.user_id)
+        grants = system.subsystems['grant'].manager.list(user_id=token.user_id)
         grants_ids = [g.role_id for g in grants]
-        roles = system.api.role.list()
+        roles = system.subsystems['role'].manager.list()
 
         user_roles = [r.name for r in roles if r.id in grants_ids]
 

@@ -1,32 +1,26 @@
 from infosystem import database
 
-from infosystem.subsystem import grant
-from infosystem.subsystem import role
-from infosystem.subsystem import token
-from infosystem.subsystem import user
-from infosystem.subsystem import domain
+import os
+
+from infosystem import subsystem
 
 
-controllers = [domain.Controller(),
-               grant.Controller(),
-               role.Controller(),
-               token.Controller(),
-               user.Controller()]
+class System(object):
 
+    def __init__(self, additional_subsystems=[]):
+        subsystem_list = subsystem.all + additional_subsystems
+        controllers = [subsystem.Controller() for subsystem in subsystem_list]
 
-subsystems = {c.manager.entity_name: c for c in controllers}
+        self.subsystems = {controller.manager.entity_name: controller
+                           for controller in controllers}
 
+        self.inject_dependencies()
 
-class API(object):
-    """Class that represents system APIs."""
-    pass
+    def inject_dependencies(self):
+        api = lambda: None
+        for name, subsystem in self.subsystems.items():
+            setattr(api, name, subsystem.manager)
 
-
-api = API()
-for name, controller in subsystems.items():
-    setattr(api, name, controller.manager)
-
-
-# Dependency injection
-for subsystem in subsystems.values():
-    subsystem.manager.api = api
+        # Dependency injection
+        for subsystem in self.subsystems.values():
+            subsystem.manager.api = api
