@@ -23,7 +23,8 @@ with app.app_context():
     user = system.subsystems['user'].manager.create(data=user_data)
     role = system.subsystems['role'].manager.create(data={'domain_id': domain.id, 'name':'admin'})
     system.subsystems['grant'].manager.create(data={'user_id': user.id, 'role_id':role.id})
-
+    policy = system.subsystems['policy'].manager.create(data={'domain_id': domain.id, 'name':'GET USER', 'url':'/users', 'method':'GET'})
+    system.subsystems['capability'].manager.create(data={'domain_id': domain.id, 'policy_id': policy.id, 'role_id':role.id})
 
 for subsystem in system.subsystems.values():
     app.register_blueprint(subsystem)
