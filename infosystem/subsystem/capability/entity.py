@@ -21,7 +21,7 @@ class Capability(entity.Entity, db.Model):
     url = db.Column(db.String(100), nullable=False)
     method = db.Column(db.String(10), nullable=False)
 
-    def __init__(self, id, domain_id, name, url, method):
+    def __init__(self, id, name, url, method):
         super(Capability, self).__init__(id)
         self.name = name
         self.url = url
