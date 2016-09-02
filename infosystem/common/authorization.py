@@ -2,12 +2,9 @@ import flask
 import json
 import uuid
 
-from infosystem import config
 from infosystem.common import exception
 
-
-config = config.cfg
-
+UUID_REPR = '<id>'
 
 def check_uuid4(uuid_str):
     try:
@@ -15,47 +12,49 @@ def check_uuid4(uuid_str):
     except ValueError:
         return False
 
+def unforce(system, path, method):
+    capabilities = system.subsystems['capability'].manager.list(url=path, method=method)
 
-def unforce(entry):
-    # FIXME(samueldmq): This reads the file every request
-    with open(config.rbac.policy_file) as policy_file:
-        policy = json.load(policy_file)
-
-        if '' in policy[entry]:
-            return
-        
+    if len(capabilities) > 0:
+        capability = capabilities[0]
+    else:
         return flask.Response(response=None, status=401)
 
-def enforce(roles, entry):
-    # FIXME(samueldmq): This reads the file every request
-    with open(config.rbac.policy_file) as policy_file:
-        policy = json.load(policy_file)
+    policies = system.subsystems['policy'].manager.list(capability_id=capability.id, bypass=True)    
+    if len(policies) > 0:
+        return 
+    else:
+        return flask.Response(response=None, status=401)
 
-        if '*' in policy[entry]:
-            return
+def enforce(system, user_roles_id, path, method):
+    capabilities = system.subsystems['capability'].manager.list(url=path, method=method)
 
-        if roles == None:
-            return flask.Response(response=None, status=401)
+    if len(capabilities) > 0:
+        capability = capabilities[0]
+    else:
+        return flask.Response(response=None, status=401)
 
-        intersection = set(roles).intersection(policy[entry])
-        if not intersection:
-            return flask.Response(response=None, status=401)
+    policies = system.subsystems['policy'].manager.list(capability_id=capability.id, role_id=None)    
+    if len(policies) > 0:
+        return 
 
+    policies = system.subsystems['policy'].manager.list(capability_id=capability.id)
+    policies_roles_id = [p.role_id for p in policies]
 
-UUID_REPR = '<id>'
-POST_TOKEN = ('POST', '/tokens')
+    intersection = set(user_roles_id).intersection(policies_roles_id)
+    if not intersection:
+        return flask.Response(response=None, status=401)
 
+    return
 
 def protect(system):
     method = flask.request.environ['REQUEST_METHOD']
-    path = flask.request.environ['PATH_INFO'].rstrip('/')
+    original_path = flask.request.environ['PATH_INFO'].rstrip('/')
 
-    if (method, path) == POST_TOKEN:
-        return
+    path_bits = [UUID_REPR if check_uuid4(i) else i for i in original_path.split('/')]
+    path = '/'.join(path_bits)
 
-    path_bits = [UUID_REPR if check_uuid4(i) else i for i in path.split('/')]
-    normalized_path = '/'.join(path_bits)
-    entry = method + ' ' + normalized_path
+    print(path)
 
     id = flask.request.headers.get('token')
 
@@ -69,8 +68,8 @@ def protect(system):
         grants_ids = [g.role_id for g in grants]
         roles = system.subsystems['role'].manager.list()
 
-        user_roles = [r.name for r in roles if r.id in grants_ids]
+        user_roles_id = [r.id for r in roles if r.id in grants_ids]
 
-        return enforce(user_roles, entry)
+        return enforce(system, user_roles_id, path, method)
 
-    return unforce(entry)
+    return unforce(system, path, method)

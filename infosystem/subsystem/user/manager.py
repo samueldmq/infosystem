@@ -1,14 +1,11 @@
 import json
 import flask
 
-from infosystem import config
 from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
 
 import smtplib
-
-config = config.cfg
 
 class Restore(operation.Operation):
 
@@ -90,24 +87,19 @@ class Capabilities(operation.Operation):
         token = self.manager.api.token.get(id=self.token)
         grants = self.manager.api.grant.list(user_id=token.user_id)
         grants_ids = [g.role_id for g in grants]
+        roles = self.manager.api.role.list()
 
-        roles = [r.name for r in self.manager.api.role.list()]
+        user_roles_id = [r.id for r in roles if r.id in grants_ids]
 
-        policies = {}
-        # FIXME(fdoliveira): This reads the file every request
-        with open(config.rbac.policy_file) as policy_file:
-            # json.load returns dict
-            policy_system = json.load(policy_file)
+        # FIXME(fdoliveira) Try to send user_roles_id as paramater on query
+        policies = self.manager.api.policy.list()
+        policies_capabilitys_id = [p.capability_id for p in policies if ((p.bypass) or (p.role_id == None) or (p.role_id in user_roles_id))]
 
-            for k, v in policy_system.items():
-                if ('*' in v) or ('' in v):
-                    policies[k] = v
-                else:
-                    intersection = set(roles).intersection(v)
-                    if intersection:
-                        policies[k] = v
-        
-        return policies
+        capabilities = self.manager.api.capability.list()
+
+        policy_capabilities = [c for c in capabilities if c.id in policies_capabilitys_id]
+
+        return policy_capabilities
 
 
 class Manager(manager.Manager):

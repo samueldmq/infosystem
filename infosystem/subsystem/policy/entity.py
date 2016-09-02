@@ -8,8 +8,9 @@ class Policy(entity.Entity, db.Model):
     attributes = ['id', 'domain_id', 'capability_id', 'role_id']
     domain_id = db.Column(db.CHAR(32), db.ForeignKey("domain.id"), nullable=False)
     capability_id = db.Column(db.CHAR(32), db.ForeignKey("capability.id"), nullable=False)
-    role_id = db.Column(db.CHAR(32), db.ForeignKey("role.id"), nullable=False)
-    UniqueConstraint('domain_id', 'capability_id', 'role_id', name='capability_uk')
+    role_id = db.Column(db.CHAR(32), db.ForeignKey("role.id"), nullable=True)
+    bypass = db.Column(db.Boolean, nullable=False, default=False)
+    UniqueConstraint('domain_id', 'capability_id', 'role_id', name='policy_uk')
 
     def __init__(self, id, domain_id, capability_id, role_id):
         super(Policy, self).__init__(id)
