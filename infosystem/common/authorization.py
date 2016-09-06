@@ -54,8 +54,6 @@ def protect(system):
     path_bits = [UUID_REPR if check_uuid4(i) else i for i in original_path.split('/')]
     path = '/'.join(path_bits)
 
-    print(path)
-
     id = flask.request.headers.get('token')
 
     if id:
