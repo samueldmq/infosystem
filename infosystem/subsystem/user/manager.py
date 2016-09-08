@@ -10,9 +10,13 @@ import smtplib
 class Restore(operation.Operation):
 
     def pre(self, data, **kwargs):
-        domain_name = kwargs.get('domain_name')
-        email = kwargs.get('email')
-        self.reset_url = kwargs.get('reset_url')
+        domain_name = data.get('domain_name', None)
+        print(domain_name)
+        email = data.get('email', None)
+        print(email)
+        self.reset_url = data.get('reset_url', None)
+        print(self.reset_url)
+
 
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
@@ -35,25 +39,24 @@ class Restore(operation.Operation):
         token = self.manager.api.token.create(user=self.user)
         token_id = token.id
 
-        gmail_user = ''
-        gmail_pwd = ''
-        FROM = gmail_user
-        recipient = ''
-        TO = recipient if type(recipient) is list else [recipient]
+        from_email = 'oliveira.francois@gmail.com'
+        recipient = self.user.email
+        to_email = recipient if type(recipient) is list else [recipient]
+        print(to_email)
         SUBJECT = 'TESTE ASSUNTO'
         TEXT = self.reset_url + '?token=' + token_id
 
         # Prepare actual message
         message = """From: %s\nTo: %s\nSubject: %s\n\n%s
-        """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
+        """ % (from_email, ", ".join(to_email), SUBJECT, TEXT)
 
         try:
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.ehlo()
             server.starttls()
-            server.login(gmail_user, gmail_pwd)
-            server.sendmail(FROM, TO, message)
-            server.close()
+            server.login(from_email, 'a07v28b33?')
+            server.sendmail(from_email, to_email, message)
+            server.quit()
         except:
             # TODO(samueldmq): do something here!
             pass
