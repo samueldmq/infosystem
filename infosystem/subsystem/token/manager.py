@@ -14,10 +14,19 @@ class Create(operation.Operation):
             # in the body and then having a valid token?
             self.user = kwargs['user']
         else:
-            username = data.get('name', None)
+            domain_name = data.get('domain_name', None)
+            username = data.get('username', None)
             password = data.get('password', None)
 
-            users = self.manager.api.user.list(name=username, password=password)
+            # TODO(samueldmq): allow get by unique attrs
+            domains = self.manager.api.domain.list(name=domain_name)
+
+            if not domains:
+                return False
+
+            domain_id = domains[0].id
+
+            users = self.manager.api.user.list(domain_id=domain_id, name=username, password=password)
             if not users:
                 return False
 
