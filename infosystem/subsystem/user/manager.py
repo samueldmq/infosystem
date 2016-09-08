@@ -11,12 +11,8 @@ class Restore(operation.Operation):
 
     def pre(self, data, **kwargs):
         domain_name = data.get('domain_name', None)
-        print(domain_name)
         email = data.get('email', None)
-        print(email)
         self.reset_url = data.get('reset_url', None)
-        print(self.reset_url)
-
 
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
@@ -42,7 +38,6 @@ class Restore(operation.Operation):
         from_email = 'oliveira.francois@gmail.com'
         recipient = self.user.email
         to_email = recipient if type(recipient) is list else [recipient]
-        print(to_email)
         SUBJECT = 'TESTE ASSUNTO'
         TEXT = self.reset_url + '?token=' + token_id
 
