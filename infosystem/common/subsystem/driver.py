@@ -49,3 +49,12 @@ class Driver(object):
         query = session.query(self.entity_cls).filter_by(**kwargs)
         result = query.all()
         return result
+
+    def count(self, session):
+        try:
+            rows = session.query(self.entity_cls.id).count()
+            result = rows
+        except exc.NoResultFound:
+            raise exception.NotFound()
+
+        return result

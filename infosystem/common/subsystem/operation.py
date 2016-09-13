@@ -95,3 +95,9 @@ class Delete(Operation):
 
     def do(self, session, **kwargs):
         self.driver.delete(self.entity, session=session)
+
+class Count(Operation):
+
+    def do(self, session, **kwargs):
+        rows = self.driver.count(session=session)
+        return rows
