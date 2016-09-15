@@ -11,8 +11,8 @@ class Role(entity.Entity, db.Model):
     active = db.Column(db.Boolean(), nullable=False)
     UniqueConstraint('domain_id', 'name', name='role_name_uk')
 
-    def __init__(self, id, name, domain_id, active=True):
+    def __init__(self, id, domain_id, name, active=True):
         super(Role, self).__init__(id)
-        self.name = name
         self.domain_id = domain_id
+        self.name = name
         self.active = active
