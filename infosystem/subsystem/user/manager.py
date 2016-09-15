@@ -49,7 +49,7 @@ class Restore(operation.Operation):
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.ehlo()
             server.starttls()
-            server.login(from_email, 'a07v28b33?')
+            server.login(from_email, '?')
             server.sendmail(from_email, to_email, message)
             server.quit()
         except:

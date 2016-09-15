@@ -5,15 +5,16 @@ from infosystem.database import db
 
 class Policy(entity.Entity, db.Model):
 
-    attributes = ['id', 'domain_id', 'capability_id', 'role_id']
+    attributes = ['id', 'capability_id', 'role_id', 'bypass']
     domain_id = db.Column(db.CHAR(32), db.ForeignKey("domain.id"), nullable=False)
     capability_id = db.Column(db.CHAR(32), db.ForeignKey("capability.id"), nullable=False)
     role_id = db.Column(db.CHAR(32), db.ForeignKey("role.id"), nullable=True)
     bypass = db.Column(db.Boolean, nullable=False, default=False)
     UniqueConstraint('domain_id', 'capability_id', 'role_id', name='policy_uk')
 
-    def __init__(self, id, domain_id, capability_id, role_id):
+    def __init__(self, id, domain_id, capability_id, role_id, bypass):
         super(Policy, self).__init__(id)
         self.domain_id = domain_id
         self.capability_id = capability_id
         self.role_id = role_id
+        self.bypass = bypass

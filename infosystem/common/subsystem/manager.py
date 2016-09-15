@@ -24,3 +24,4 @@ class Manager(object):
             self.list = operation.List(self)
             self.update = operation.Update(self)
             self.delete = operation.Delete(self)
+            self.count = operation.Count(self)
