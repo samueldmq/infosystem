@@ -1,5 +1,6 @@
 import flask
 import uuid
+import sqlalchemy
 
 # TODO this import here is so strange
 from infosystem import database
@@ -39,6 +40,9 @@ class Operation(object):
             self.post()
             if session.count == 0:
                 session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            # TODO(samueldmq): integrity error may be something else...
+            raise exception.DuplicatedEntity()
         except Exception as e:
             session.rollback()
             session.count = 0

@@ -11,6 +11,12 @@ class NotFound(InfoSystemException):
     message = 'Entity not found'
 
 
+class DuplicatedEntity(InfoSystemException):
+
+    status = 404
+    message = 'Entity already exists'
+
+
 class BadRequest(InfoSystemException):
 
     status = 400
