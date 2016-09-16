@@ -23,8 +23,8 @@ class User(entity.Entity, db.Model):
     email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
     active = db.Column(db.Boolean(), nullable=False)
-    UniqueConstraint('domain_id', 'name', name='user_name_uk')
-    UniqueConstraint('domain_id', 'email', name='user_email_uk')
+    __table_args__ = (UniqueConstraint('domain_id', 'name', name='user_name_uk'),)
+    __table_args__ = (UniqueConstraint('domain_id', 'email', name='user_email_uk'),)
 
     def __init__(self, id, domain_id, name, email, password, active=True):
         super(User, self).__init__(id)
