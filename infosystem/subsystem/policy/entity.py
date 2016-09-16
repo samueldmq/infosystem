@@ -12,7 +12,7 @@ class Policy(entity.Entity, db.Model):
     bypass = db.Column(db.Boolean, nullable=False, default=False)
     __table_args__ = (UniqueConstraint('domain_id', 'capability_id', 'role_id', name='policy_uk'),)
 
-    def __init__(self, id, domain_id, capability_id, role_id, bypass):
+    def __init__(self, id, domain_id, capability_id, role_id=None, bypass=False):
         super(Policy, self).__init__(id)
         self.domain_id = domain_id
         self.capability_id = capability_id
