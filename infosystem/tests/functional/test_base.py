@@ -14,7 +14,7 @@ class InfoSystemTest(object):
 
         response = self.app.post(
             '/tokens',
-            data=json.dumps({'name': 'admin', 'password': '123456'}),
+            data=json.dumps({'domain_name': 'default', 'username': 'admin', 'password': '123456'}),
             headers={'Content-Type': 'application/json'})
 
         self.token = json.loads(response.data.decode())['token']['id']
