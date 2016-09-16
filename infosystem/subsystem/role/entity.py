@@ -5,7 +5,7 @@ from infosystem.database import db
 
 class Role(entity.Entity, db.Model):
 
-    attributes = ['id', 'name', 'active']
+    attributes = ['id', 'domain_id', 'name', 'active']
     domain_id = db.Column(db.CHAR(32), db.ForeignKey("domain.id"), nullable=False)
     name = db.Column(db.String(80), nullable=False)
     active = db.Column(db.Boolean(), nullable=False)

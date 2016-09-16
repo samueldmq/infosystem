@@ -6,8 +6,7 @@ import testtools
 from infosystem.tests.functional import test_base
 
 
-class PolicyTestCase(test_base.CRUDTest,
-                   testtools.TestCase):
+class PolicyTestCase(test_base.CRUDTest): #, testtools.TestCase):
 
     def load_fixtures(self):
         domain = self.post(

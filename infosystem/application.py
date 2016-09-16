@@ -1,13 +1,12 @@
 import flask
 import os
 import uuid
-from flask import url_for
-import urllib
-import re
+
 
 from infosystem.common import authorization
 from infosystem.common import exception
 from infosystem import database
+from infosystem.bootstrap import *
 from infosystem import system as system_module
 
 
@@ -22,48 +21,6 @@ database.db.init_app(app)
 
 for subsystem in system.subsystems.values():
     app.register_blueprint(subsystem)
-
-
-def bootstrap(app, system):
-    output = []
-    for rule in app.url_map.iter_rules():
-        options = {}
-        for arg in rule.arguments:
-            options[arg] = '<' + arg +  '>'
-
-        url = urllib.parse.unquote(url_for(rule.endpoint, **options))
-        url = re.sub(".*" + app.config['SERVER_NAME'],"",url)
-        methods = rule.methods
-        try:
-            # TODO(samueldmq): revisit this. Don't we really want HEAD ?
-            methods.remove('HEAD')
-        except KeyError:
-            pass
-
-        try:
-            methods.remove('OPTIONS')
-        except KeyError:
-            pass
-
-        for method in rule.methods:
-            capability = {'name': 'capability', 'method': method, 'url': url}
-            try:
-                system.subsystems['capability'].manager.create(capability)
-            except exception.DuplicatedEntity:
-                pass # simply ignore if the capability is already registered
-
-        capabilities = system.subsystems['capability'].manager.list()
-        domains = system.subsystems['domain'].manager.list()
-
-        for domain in domains:
-            for capability in capabilities:
-                policy = {'domain_id': domain.id,
-                          'capability_id': capability.id,
-                          'bypass': True}
-                try:
-                    system.subsystems['policy'].manager.create(policy)
-                except exception.DuplicatedEntity:
-                    pass # simply ignore if the policy is already registered
 
 
 with app.app_context():
