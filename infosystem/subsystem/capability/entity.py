@@ -21,7 +21,7 @@ class Capability(entity.Entity, db.Model):
     name = db.Column(db.String(30), nullable=False)
     url = db.Column(db.String(100), nullable=False)
     method = db.Column(db.String(10), nullable=False)
-    UniqueConstraint('url', 'method', name='capability_uk')
+    __table_args__ = (UniqueConstraint('url', 'method', name='capability_uk'),)
 
     def __init__(self, id, name, url, method):
         super(Capability, self).__init__(id)
