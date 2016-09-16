@@ -6,6 +6,7 @@ import urllib
 import re
 
 from infosystem.common import authorization
+from infosystem.common import exception
 from infosystem import database
 from infosystem import system as system_module
 
@@ -45,7 +46,24 @@ def bootstrap(app, system):
             pass
 
         for method in rule.methods:
-            print(method, url)
+            capability = {'name': 'capability', 'method': method, 'url': url}
+            try:
+                system.subsystems['capability'].manager.create(capability)
+            except exception.DuplicatedEntity:
+                pass # simply ignore if the capability is already registered
+
+        capabilities = system.subsystems['capability'].manager.list()
+        domains = system.subsystems['domain'].manager.list()
+
+        for domain in domains:
+            for capability in capabilities:
+                policy = {'domain_id': domain.id,
+                          'capability_id': capability.id,
+                          'bypass': True}
+                try:
+                    system.subsystems['policy'].manager.create(policy)
+                except exception.DuplicatedEntity:
+                    pass # simply ignore if the policy is already registered
 
 
 with app.app_context():
