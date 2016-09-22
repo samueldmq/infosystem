@@ -48,7 +48,7 @@ class Controller(flask.Blueprint):
         data = flask.request.get_json()
 
         try:
-            entity = self.manager.create(data)
+            entity = self.manager.create(**data)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)
@@ -98,7 +98,7 @@ class Controller(flask.Blueprint):
         data = flask.request.get_json()
 
         try:
-           entity = self.manager.update(data, id=id)
+           entity = self.manager.update(id=id, **data)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)

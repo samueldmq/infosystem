@@ -9,10 +9,10 @@ import smtplib
 
 class Restore(operation.Operation):
 
-    def pre(self, data, **kwargs):
-        domain_name = data.get('domain_name', None)
-        email = data.get('email', None)
-        self.reset_url = data.get('reset_url', None)
+    def pre(self, **kwargs):
+        domain_name = kwargs.get('domain_name', None)
+        email = kwargs.get('email', None)
+        self.reset_url = kwargs.get('reset_url', None)
 
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
@@ -59,9 +59,9 @@ class Restore(operation.Operation):
 
 class Reset(operation.Operation):
 
-    def pre(self, data, **kwargs):
+    def pre(self, **kwargs):
         self.token = flask.request.headers.get('token')
-        self.password = data.get('password')
+        self.password = kwargs.get('password')
 
         if not (self.token and self.password):
             raise exception.OperationBadRequest()
@@ -69,12 +69,12 @@ class Reset(operation.Operation):
 
     def do(self, session, **kwargs):
         token = self.manager.api.token.get(id=self.token)
-        self.manager.api.user.update(id=token.user_id, data={'password': self.password})
+        self.manager.api.user.update(id=token.user_id, password=self.password)
 
 
 class Capabilities(operation.Operation):
 
-    def pre(self, data, **kwargs):
+    def pre(self, **kwargs):
         self.token = flask.request.headers.get('token')
 
         if not (self.token):

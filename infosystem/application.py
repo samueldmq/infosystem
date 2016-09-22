@@ -26,12 +26,12 @@ for subsystem in system.subsystems.values():
 with app.app_context():
     database.db.create_all()
 
-    domain = system.subsystems['domain'].manager.create(data={'name': 'default'})
+    domain = system.subsystems['domain'].manager.create(name='default')
     user_data = {'name': 'admin', 'email':'admin@example.com', 'password':'123456',
                  'domain_id': domain.id}
-    user = system.subsystems['user'].manager.create(data=user_data)
-    role = system.subsystems['role'].manager.create(data={'domain_id': domain.id, 'name':'admin'})
-    system.subsystems['grant'].manager.create(data={'user_id': user.id, 'role_id':role.id})
+    user = system.subsystems['user'].manager.create(**user_data)
+    role = system.subsystems['role'].manager.create(domain_id=domain.id, name='admin')
+    system.subsystems['grant'].manager.create(user_id=user.id, role_id=role.id)
 
     bootstrap(app, system)
 

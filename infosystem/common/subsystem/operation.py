@@ -13,7 +13,7 @@ class Operation(object):
         self.manager = manager
         self.driver = manager.driver
 
-    def pre(self, data, **kwargs):
+    def pre(self, **kwargs):
         return True
 
     def do(self, **kwargs):
@@ -22,10 +22,10 @@ class Operation(object):
     def post(self):
         pass
 
-    def __call__(self, data=None, **kwargs):
+    def __call__(self, **kwargs):
         session = database.db.session
 
-        if not self.pre(data=data, session=session, **kwargs):
+        if not self.pre(session=session, **kwargs):
             raise exception.PreconditionFailed()
 
         if not getattr(session, 'count', None):
@@ -52,8 +52,8 @@ class Operation(object):
 
 class Create(Operation):
 
-    def pre(self, data, **kwargs):
-        self.entity = self.driver.instantiate(id=uuid.uuid4().hex, **data)
+    def pre(self, session, **kwargs):
+        self.entity = self.driver.instantiate(id=uuid.uuid4().hex, **kwargs)
         return self.entity.is_stable()
 
     def do(self, session, **kwargs):
@@ -63,7 +63,7 @@ class Create(Operation):
 
 class Get(Operation):
 
-    def pre(self, id, **kwargs):
+    def pre(self, session, id, **kwargs):
         self.id = id
         return True
 
@@ -81,9 +81,9 @@ class List(Operation):
 
 class Update(Operation):
 
-    def pre(self, id, data, session, **kwargs):
+    def pre(self, session, id, **kwargs):
         self.id = id
-        self.data = data
+        self.data = kwargs
         return bool(self.driver.get(id, session=session))
 
     def do(self, session, **kwargs):
@@ -93,7 +93,7 @@ class Update(Operation):
 
 class Delete(Operation):
 
-    def pre(self, id, session, **kwargs):
+    def pre(self, session, id, **kwargs):
         self.entity = self.driver.get(id, session=session)
         return True
 

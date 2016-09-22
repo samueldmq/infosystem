@@ -30,7 +30,7 @@ def bootstrap(app, system):
         for method in rule.methods:
             capability = {'name': 'capability', 'method': method, 'url': url}
             try:
-                system.subsystems['capability'].manager.create(capability)
+                system.subsystems['capability'].manager.create(**capability)
             except exception.DuplicatedEntity:
                 pass # simply ignore if the capability is already registered
 
@@ -60,6 +60,6 @@ def bootstrap(app, system):
                 raise Exception('internal error')
 
             try:
-                system.subsystems['policy'].manager.create(policy)
+                system.subsystems['policy'].manager.create(**policy)
             except exception.DuplicatedEntity:
                 pass # simply ignore if the policy is already registered

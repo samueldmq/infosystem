@@ -6,7 +6,7 @@ from infosystem.common.subsystem import operation
 
 class Create(operation.Operation):
 
-    def pre(self, data, **kwargs):
+    def pre(self, **kwargs):
         # FIXME(samueldmq): this method needs to receive the parameters
         # explicitly.
         if kwargs.get('user'):
@@ -14,9 +14,9 @@ class Create(operation.Operation):
             # in the body and then having a valid token?
             self.user = kwargs['user']
         else:
-            domain_name = data.get('domain_name', None)
-            username = data.get('username', None)
-            password = data.get('password', None)
+            domain_name = kwargs.get('domain_name', None)
+            username = kwargs.get('username', None)
+            password = kwargs.get('password', None)
 
             # TODO(samueldmq): allow get by unique attrs
             domains = self.manager.api.domain.list(name=domain_name)
