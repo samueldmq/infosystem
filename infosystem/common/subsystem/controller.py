@@ -39,14 +39,6 @@ class Controller(flask.Blueprint):
             self.add_url_rule(self.entity_url,
                               view_func=self.delete, methods=['DELETE'])
 
-    def _determine_domain_id(self):
-        token_id = flask.request.headers.get('token')
-        if token_id:
-            token = self.manager.api.token.get(id=token_id)
-            user = self.manager.api.user.get(id=token.user_id)
-            domain = self.manager.api.domain.get(id=user.domain_id)
-            return domain.id
-
     def create(self):
         if not flask.request.is_json:
             return flask.Response(
@@ -54,11 +46,6 @@ class Controller(flask.Blueprint):
                 status=exception.BadRequestContentType.status)
 
         data = flask.request.get_json()
-        domain_id = self._determine_domain_id()
-        if domain_id:
-            data['domain_id'] = domain_id
-        else:
-            pass #TODO(samueldmq): what to do here ?
 
         try:
             entity = self.manager.create(**data)
@@ -73,7 +60,6 @@ class Controller(flask.Blueprint):
                               mimetype="application/json")
 
     def get(self, id):
-        # TODO(samueldmq): only return if the id belongs to _determine_domain_id()
         try:
             entity = self.manager.get(id=id)
         except exception.InfoSystemException as exc:
@@ -94,13 +80,6 @@ class Controller(flask.Blueprint):
                 filters[k] = True
             elif v == 'False':
                 filters[k] = False
-
-        domain_id = self._determine_domain_id()
-        if domain_id:
-            filters['domain_id'] = domain_id
-        else:
-            pass #TODO(samueldmq): what to do here ?
-
         try:
             entities = self.manager.list(**filters)
         except exception.InfoSystemException as exc:
@@ -116,7 +95,6 @@ class Controller(flask.Blueprint):
                               mimetype="application/json")
 
     def update(self, id):
-        # TODO(samueldmq): only update if the id belongs to _determine_domain_id()
         data = flask.request.get_json()
 
         try:
@@ -132,8 +110,6 @@ class Controller(flask.Blueprint):
                               mimetype="application/json")
 
     def delete(self, id):
-        # TODO(samueldmq): only delete if the id belongs to _determine_domain_id()
-
         try:
             self.manager.delete(id=id)
         except exception.InfoSystemException as exc:
