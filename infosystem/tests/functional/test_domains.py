@@ -22,14 +22,14 @@ class DomainTestCase(test_base.CRUDTest,
 
     @property
     def optional_attributes(self):
-        return ['active']
+        return ['active', 'parent_id']
 
     @property
     def unique_attributes(self):
         return [('name',)]
 
     def new_resource_ref(self):
-        return {'name': uuid.uuid4().hex, 'active': True}
+        return {'name': uuid.uuid4().hex, 'active': True, 'parent_id': None}
 
 
 if __name__ == '__main__':
