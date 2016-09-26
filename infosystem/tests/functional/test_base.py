@@ -65,9 +65,7 @@ class InfoSystemTest(object):
 
             self.assertDictEqual(resource_copy, ref)
         else:
-            attrs = (self.required_attributes +
-                        self.optional_attributes)
-            attrs = (attr for attr in attrs if attr not in self.hidden_attributes)
+            attrs = (attr for attr in self.required_attributes if attr not in self.hidden_attributes)
             for attr in attrs:
                 self.assertIsNotNone(resource_copy[attr])
 
