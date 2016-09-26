@@ -76,10 +76,12 @@ class Controller(flask.Blueprint):
         filters = {k: flask.request.args.get(k) for k in flask.request.args.keys()}
         #TODO(samueldmq): fix this to work in a better way
         for k,v in filters.items():
-            if v == 'True':
+            if v == 'true':
                 filters[k] = True
-            elif v == 'False':
+            elif v == 'false':
                 filters[k] = False
+            elif v == 'null':
+                filters[k] = None
         try:
             entities = self.manager.list(**filters)
         except exception.InfoSystemException as exc:

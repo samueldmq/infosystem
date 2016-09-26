@@ -111,6 +111,11 @@ class InfoSystemTest(object):
             return json.loads(response.data.decode())[self.resource_name]
 
     def list(self, status='200 OK', headers=None, **kwargs):
+        for k,v in kwargs.items():
+            if isinstance(v, bool):
+                kwargs[k] = 'true' if v else 'false'
+            elif v is None:
+                kwargs[k] = 'null'
         params = '&'.join([k + '=' + str(v) for k, v in kwargs.items()])
         params = '?' + params if params else ''
 
