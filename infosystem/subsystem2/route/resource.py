@@ -8,9 +8,9 @@ class Route(entity.Entity, db.Model):
     # TODO(samueldmq): recheck string lengths for below attributes
     # TODO(samueldmq): add an 'active' attribute
     attributes = ['id', 'name', 'url', 'method', 'admin', 'bypass']
-    name = db.Column(db.String(20), nullable=False, unique=True)
-    url = db.Column(db.String(80), nullable=False, unique=True)
-    method = db.Column(db.String(10), nullable=False, unique=True)
+    name = db.Column(db.String(20), nullable=False)
+    url = db.Column(db.String(80), nullable=False)
+    method = db.Column(db.String(10), nullable=False)
     admin = db.Column(db.Boolean(), nullable=False)
     bypass = db.Column(db.Boolean(), nullable=False)
     __table_args__ = (UniqueConstraint('url', 'method', name='route_uk'),)

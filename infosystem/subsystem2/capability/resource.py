@@ -10,7 +10,11 @@ class Capability(entity.Entity, db.Model):
     domain_id = db.Column(db.CHAR(32), db.ForeignKey("domain.id"), nullable=False)
     __table_args__ = (UniqueConstraint('route_id', 'domain_id', name='capability_uk'),)
 
-    def __init__(self, route_id, domain_id):
+    def __init__(self, id, route_id, domain_id):
         super().__init__(id)
         self.route_id = route_id
         self.domain_id = domain_id
+
+    @classmethod
+    def collection(cls):
+        return 'capabilities'

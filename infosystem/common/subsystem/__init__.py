@@ -19,6 +19,7 @@ class Subsystem(flask.Blueprint):
 
         self.name = resource.collection()
         self.router = router
+        self.manager = manager
         self.register_routes()
 
 
