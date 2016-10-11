@@ -83,11 +83,10 @@ class Update(Operation):
 
     def pre(self, session, id, **kwargs):
         self.id = id
-        self.data = kwargs
-        return bool(self.driver.get(id, session=session))
+        return True
 
     def do(self, session, **kwargs):
-        entity = self.driver.update(self.id, self.data, session=session)
+        entity = self.driver.update(self.id, kwargs, session=session)
         return entity
 
 

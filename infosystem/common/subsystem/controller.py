@@ -74,7 +74,7 @@ class Controller(object):
         data = flask.request.get_json()
 
         try:
-           entity = self.manager.update(id=id, **data)
+           entity = self.manager.update(**data)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)
