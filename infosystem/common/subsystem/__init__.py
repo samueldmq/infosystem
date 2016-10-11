@@ -9,18 +9,15 @@ from infosystem.common.subsystem.router import *
 class Subsystem(flask.Blueprint):
 
     def __init__(self, resource, router=None, controller=None, manager=None,
-                 driver=None):
-        super(Subsystem, self).__init__(resource.collection, resource.collection)
+                 driver=None, operations=[]):
+        super().__init__(resource.collection(), resource.collection())
 
-        if router is None:
-            if controller is None:
-                if manager is None:
-                    if driver is None:
-                        driver = Driver(resource)
-                    manager = Manager(driver)
-                controller = Contoller(manager)
-            router = Router(controller)
+        driver = driver(resource) if driver else Driver(resource)
+        manager = manager(driver) if manager else Manager(driver)
+        controller = controller(manager, resource.individual(), resource.collection()) if controller else Controller(manager, resource.individual(), resource.collection())
+        router = router(controller, resource.collection(), routes=operations) if router else Router(controller, resource.collection(), routes=operations)
 
+        self.name = resource.collection()
         self.router = router
         self.register_routes()
 
@@ -28,4 +25,4 @@ class Subsystem(flask.Blueprint):
     def register_routes(self):
         for route in self.router.routes:
             self.add_url_rule(
-                route.url, view_func=route.callback, methods=[route.method])
+                route['url'], view_func=route['callback'], methods=[route['method']])

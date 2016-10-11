@@ -4,24 +4,13 @@ from infosystem.common.subsystem import operation
 
 class Manager(object):
 
-    def __init__(self, entity_cls=None):
-        self.entity_cls = entity_cls
-        self.driver = driver.Driver(entity_cls) if entity_cls else None
-        self.register_operations()
+    def __init__(self, driver):
+        self.driver = driver
 
-    @property
-    def entity_name(self):
-        return self.entity_cls.get_name()
-
-    @property
-    def collection_name(self):
-        return self.entity_cls.get_collection_name()
-
-    def register_operations(self):
-        if self.driver:
-            self.create = operation.Create(self)
-            self.get = operation.Get(self)
-            self.list = operation.List(self)
-            self.update = operation.Update(self)
-            self.delete = operation.Delete(self)
-            self.count = operation.Count(self)
+        self.create = operation.Create(self)
+        self.get = operation.Get(self)
+        self.list = operation.List(self)
+        self.update = operation.Update(self)
+        self.delete = operation.Delete(self)
+        # NOTE(samueldmq): what do we use this for ?
+        self.count = operation.Count(self)

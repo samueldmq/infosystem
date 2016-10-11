@@ -2,42 +2,16 @@ import flask
 import json
 
 from infosystem.common import exception
-from infosystem.common.subsystem import manager
+# TODO(samueldmq): find a better name to this
+from infosystem.common.subsystem import manager as m
 
 
-class Controller(flask.Blueprint):
+class Controller(object):
 
-    def __init__(self, manager):
-        super(Controller, self).__init__(manager.entity_name,
-                                         manager.entity_name)
-
+    def __init__(self, manager, resource_wrap, collection_wrap):
         self.manager = manager
-        self.register_routes()
-
-    @property
-    def collection_url(self):
-        return '/' + self.manager.collection_name
-
-    @property
-    def entity_url(self):
-        return self.collection_url + '/<id>'
-
-    def register_routes(self):
-        if hasattr(self.manager, 'create'):
-            self.add_url_rule(self.collection_url,
-                              view_func=self.create, methods=['POST'])
-        if hasattr(self.manager, 'get'):
-            self.add_url_rule(self.entity_url,
-                              view_func=self.get, methods=['GET'])
-        if hasattr(self.manager, 'list'):
-            self.add_url_rule(self.collection_url,
-                              view_func=self.list, methods=['GET'])
-        if hasattr(self.manager, 'update'):
-            self.add_url_rule(self.entity_url,
-                              view_func=self.update, methods=['PUT'])
-        if hasattr(self.manager, 'delete'):
-            self.add_url_rule(self.entity_url,
-                              view_func=self.delete, methods=['DELETE'])
+        self.resource_wrap = resource_wrap
+        self.collection_wrap = collection_wrap
 
     def create(self):
         if not flask.request.is_json:
@@ -53,7 +27,7 @@ class Controller(flask.Blueprint):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        response = {self.manager.entity_name: entity.to_dict()}
+        response = {self.resource_wrap: entity.to_dict()}
 
         return flask.Response(response=json.dumps(response),
                               status=201,
@@ -66,7 +40,7 @@ class Controller(flask.Blueprint):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        response = {self.manager.entity_name: entity.to_dict()}
+        response = {self.resource_wrap: entity.to_dict()}
 
         return flask.Response(response=json.dumps(response),
                               status=200,
@@ -88,7 +62,7 @@ class Controller(flask.Blueprint):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        response = {self.manager.collection_name: (
+        response = {self.collection_wrap: (
             [entity if isinstance(entity, dict) else entity.to_dict()
             for entity in entities])}
 
@@ -105,7 +79,7 @@ class Controller(flask.Blueprint):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        response = {self.manager.entity_name: entity.to_dict()}
+        response = {self.resource_wrap: entity.to_dict()}
 
         return flask.Response(response=json.dumps(response),
                               status=200,

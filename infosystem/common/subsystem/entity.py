@@ -17,12 +17,12 @@ class Entity(object):
         self.id = id
 
     @classmethod
-    def get_name(cls):
+    def individual(cls):
         return cls.__name__.lower()
 
     @classmethod
-    def get_collection_name(cls):
-        return cls.get_name() + 's'
+    def collection(cls):
+        return cls.individual() + 's'
 
     def is_stable(self):
         return True

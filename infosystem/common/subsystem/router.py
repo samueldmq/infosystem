@@ -1,29 +1,28 @@
 import flask
 
 
-class Route(object):
-
-    def __init__(self, name, method, url, callback):
-        self.name = name
-        self.method = method
-        self.url = url
-        self.callback = callback
-
-
 class Router(object):
 
-    def __init__(self, resource):
-        super(Router, self).__init__(resource.collection, resource.collection)
+    def __init__(self, controller, collection, routes=[]):
+        self.controller = controller
 
-        self.collection_url = '/' + resource.collection
+        self.collection_url = '/' + collection
         self.resource_url = self.collection_url + '/<id>'
+
+        if routes:
+            self._routes = [r for r in self.get_crud() if r['action'] in routes]
+        else:
+            self._routes = self.get_crud()
+
+    def get_crud(self):
+        return [
+            {'action': 'create', 'method': 'POST', 'url': self.collection_url, 'callback': self.controller.create},
+            {'action': 'get',    'method': 'GET',  'url': self.resource_url,   'callback': self.controller.get},
+            {'action': 'list',   'method': 'GET',  'url': self.collection_url, 'callback': self.controller.list},
+            {'action': 'update', 'method': 'PUT',  'url': self.resource_url,   'callback': self.controller.update},
+            {'action': 'delete', 'method': 'DELETE',  'url': self.resource_url,   'callback': self.controller.delete}
+            ]
 
     @property
     def routes(self):
-        return [
-            Route('Create ' + resource.collection, 'POST', self.collection_url, self.controller.create),
-            Route('Get '    + resource.collection, 'GET',  self.resource_url,   self.controller.get),
-            Route('List '   + resource.collection, 'GET',  self.collection_url, self.controller.list),
-            Route('Update ' + resource.collection, 'PUT',  self.resource_url,   self.controller.update),
-            Route('Delete ' + resource.collection, 'PUT',  self.resource_url,   self.controller.update)
-        ]
+        return self._routes

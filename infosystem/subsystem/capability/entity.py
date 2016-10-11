@@ -15,16 +15,16 @@ from infosystem.common.subsystem import entity
 from infosystem.database import db
 
 
-class Capability(entity.Entity, db.Model):
+# class Capability(entity.Entity, db.Model):
 
-    attributes = ['id', 'name', 'url', 'method']
-    name = db.Column(db.String(30), nullable=False)
-    url = db.Column(db.String(100), nullable=False)
-    method = db.Column(db.String(10), nullable=False)
-    __table_args__ = (UniqueConstraint('url', 'method', name='capability_uk'),)
+#     attributes = ['id', 'name', 'url', 'method']
+#     name = db.Column(db.String(30), nullable=False)
+#     url = db.Column(db.String(100), nullable=False)
+#     method = db.Column(db.String(10), nullable=False)
+#     __table_args__ = (UniqueConstraint('url', 'method', name='capability_uk'),)
 
-    def __init__(self, id, name, url, method):
-        super(Capability, self).__init__(id)
-        self.name = name
-        self.url = url
-        self.method = method
+#     def __init__(self, id, name, url, method):
+#         super(Capability, self).__init__(id)
+#         self.name = name
+#         self.url = url
+#         self.method = method

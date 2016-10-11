@@ -4,12 +4,12 @@ from infosystem.common import exception
 
 class Driver(object):
 
-    def __init__(self, entity_cls):
-        self.entity_cls = entity_cls
+    def __init__(self, resource):
+        self.resource = resource
 
     def instantiate(self, **kwargs):
         try:
-            instance = self.entity_cls(**kwargs)
+            instance = self.resource(**kwargs)
         except Exception:
             # TODO(samueldmq): replace with specific exception
             raise exception.BadRequest()
@@ -38,7 +38,7 @@ class Driver(object):
 
     def get(self, id, session):
         try:
-            query = session.query(self.entity_cls).filter_by(id=id)
+            query = session.query(self.resource).filter_by(id=id)
             result = query.one()
         except exc.NoResultFound:
             raise exception.NotFound()
@@ -46,13 +46,13 @@ class Driver(object):
         return result
 
     def list(self, session, **kwargs):
-        query = session.query(self.entity_cls).filter_by(**kwargs)
+        query = session.query(self.resource).filter_by(**kwargs)
         result = query.all()
         return result
 
     def count(self, session):
         try:
-            rows = session.query(self.entity_cls.id).count()
+            rows = session.query(self.resource.id).count()
             result = rows
         except exc.NoResultFound:
             raise exception.NotFound()
