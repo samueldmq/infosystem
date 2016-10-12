@@ -49,9 +49,6 @@ class System(flask.Flask):
 
         self.bootstrap()
 
-        # def protect():
-        #     return authorization.protect(system)
-
         self.before_request(self.prepare)
         self.before_request(self.map)
         self.before_request(self.protect)
