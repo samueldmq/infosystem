@@ -4,8 +4,7 @@ import os
 import uuid
 
 from infosystem import subsystem as subsystem_module
-# TODO(samueldmq): bring scheduler back!
-# from infosystem.subsystem import scheduler
+from infosystem import scheduler
 from infosystem.common import exception
 
 import flask
@@ -44,7 +43,7 @@ class System(flask.Flask):
         for subsystem in self.subsystems.values():
             self.register_blueprint(subsystem)
 
-        # self.scheduler = scheduler.Manager()
+        self.scheduler = scheduler.Scheduler()
         self.schedule_jobs()
 
         self.bootstrap()
