@@ -53,7 +53,7 @@ class System(flask.Flask):
         #     return authorization.protect(system)
 
         self.before_request(self.prepare)
-        self.before_request(self.route)
+        self.before_request(self.map)
         self.before_request(self.protect)
 
     def prepare(self):
@@ -82,7 +82,7 @@ class System(flask.Flask):
             flask.request.environ['user_id'] = None
             flask.request.environ['domain_id'] = None
 
-    def route(self):
+    def map(self):
         # check if route is available @ current domain (capability or bypass route)
 
         url = flask.request.environ['url']
@@ -112,10 +112,25 @@ class System(flask.Flask):
             return
 
         # check the current user has enough privilegies to access this route (roles or capability is open)
-        print(flask.request.environ['url'])
-        print(flask.request.environ['method'])
-        print(flask.request.environ['user_id'])
-        print(flask.request.environ['domain_id'])
+        grants = self.subsystems['grants'].manager.list(user_id=user_id)
+        user_role_ids = [g.role_id for g in grants]
+
+
+        # TODO(samueldmq): sysadmin won't provide a domain, so capabilities will be empty
+        # treat this case here once we support sysadmin
+        capability = self.subsystems['capabilities'].manager.list(route_id=route.id, domain_id=domain_id)[0]
+
+        policies = self.subsystems['policies'].manager.list(capability_id=capability.id)
+
+        # open capability
+        if not policies:
+            return
+
+        policy_role_ids = [p.role_id for p in policies]
+
+        intersection = set(user_role_ids).intersection(policy_role_ids)
+        if not intersection:
+            return flask.Response(response=None, status=401)
 
     def configure(self):
         self.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
