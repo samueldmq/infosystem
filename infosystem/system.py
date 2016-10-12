@@ -22,6 +22,13 @@ from infosystem.common import exception
 from infosystem import database
 
 
+def check_uuid4(uuid_str):
+    try:
+        return uuid.UUID(uuid_str, version=4)
+    except ValueError:
+        return False
+
+
 class System(flask.Flask):
 
     def __init__(self, additional_subsystems=[]):
@@ -45,7 +52,70 @@ class System(flask.Flask):
         # def protect():
         #     return authorization.protect(system)
 
-        # app.before_request(protect)
+        self.before_request(self.prepare)
+        self.before_request(self.route)
+        self.before_request(self.protect)
+
+    def prepare(self):
+        """Extract route and domain info from request and add to context."""
+        method = flask.request.environ['REQUEST_METHOD']
+        original_path = flask.request.environ['PATH_INFO'].rstrip('/')
+
+        path_bits = ['<id>' if check_uuid4(i) else i for i in original_path.split('/')]
+        path = '/'.join(path_bits)
+
+        flask.request.environ['method'] = method
+        flask.request.environ['url'] = path
+
+        id = flask.request.headers.get('token')
+
+        if id:
+            try:
+                token = self.subsystems['tokens'].manager.get(id=id)
+            except exception.NotFound:
+                return flask.Response(response=None, status=401)
+
+            user = self.subsystems['users'].manager.list(user_id=token.user_id)[0]
+            flask.request.environ['user_id'] = user.id
+            flask.request.environ['domain_id'] = user.domain_id
+        else:
+            flask.request.environ['user_id'] = None
+            flask.request.environ['domain_id'] = None
+
+    def route(self):
+        # check if route is available @ current domain (capability or bypass route)
+
+        url = flask.request.environ['url']
+        method = flask.request.environ['method']
+        domain_id = flask.request.environ['domain_id']
+
+        routes = self.subsystems['routes'].manager.list(url=url, method=method)
+        if not routes:
+            return flask.Response(response=None, status=404)
+
+        route = routes[0]
+        capabilities = self.subsystems['capabilities'].manager.list(route_id=route.id, domain_id=domain_id)
+
+        # TODO(samueldmq): sysadmin won't provide a domain, so capabilities will be empty
+        # treat this case here once we support sysadmin
+        if not capabilities:
+            return flask.Response(response=None, status=404)
+
+    def protect(self):
+        url = flask.request.environ['url']
+        method = flask.request.environ['method']
+        domain_id = flask.request.environ['domain_id']
+        user_id = flask.request.environ['user_id']
+
+        route = self.subsystems['routes'].manager.list(url=url, method=method)[0]
+        if route.bypass:
+            return
+
+        # check the current user has enough privilegies to access this route (roles or capability is open)
+        print(flask.request.environ['url'])
+        print(flask.request.environ['method'])
+        print(flask.request.environ['user_id'])
+        print(flask.request.environ['domain_id'])
 
     def configure(self):
         self.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
