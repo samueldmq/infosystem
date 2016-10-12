@@ -19,14 +19,14 @@ class Create(operation.Operation):
             password = kwargs.get('password', None)
 
             # TODO(samueldmq): allow get by unique attrs
-            domains = self.manager.api.domain.list(name=domain_name)
+            domains = self.manager.api.domains.list(name=domain_name)
 
             if not domains:
                 return False
 
             domain_id = domains[0].id
 
-            users = self.manager.api.user.list(domain_id=domain_id, name=username, password=password)
+            users = self.manager.api.users.list(domain_id=domain_id, name=username, password=password)
             if not users:
                 return False
 
@@ -44,7 +44,6 @@ class Create(operation.Operation):
 
 class Manager(manager.Manager):
 
-    def register_operations(self):
+    def __init__(self, driver):
+        super(Manager, self).__init__(driver)
         self.create = Create(self)
-        self.get = operation.Get(self)
-        self.delete = operation.Delete(self)

@@ -1,4 +1,6 @@
-from infosystem import application2
+from infosystem import system
+
 
 if __name__ == '__main__':
-    application2.load_app().run(host='localhost', port=5000, debug=True)
+    system = system.System()
+    system.run(host='localhost', port=5000, debug=True)

@@ -7,6 +7,7 @@ from infosystem.common.subsystem import operation
 
 import smtplib
 
+
 class Restore(operation.Operation):
 
     def pre(self, **kwargs):
@@ -102,12 +103,9 @@ class Capabilities(operation.Operation):
 
 class Manager(manager.Manager):
 
-    def register_operations(self):
-        self.create = operation.Create(self)
-        self.get = operation.Get(self)
-        self.list = operation.List(self)
-        self.update = operation.Update(self)
-        self.delete = operation.Delete(self)
+    def __init__(self, driver):
+        super(Manager, self).__init__(driver)
         self.restore = Restore(self)
         self.reset = Reset(self)
-        self.capabilities = Capabilities(self)
+        # TODO(samueldmq): re-enable /users/<id>/capabilities
+        # self.capabilities = Capabilities(self)
