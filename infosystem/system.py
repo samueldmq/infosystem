@@ -71,12 +71,21 @@ class System(flask.Flask):
             except exception.NotFound:
                 return flask.Response(response=None, status=401)
 
-            user = self.subsystems['users'].manager.list(user_id=token.user_id)[0]
+            user = self.subsystems['users'].manager.list(id=token.user_id)[0]
             flask.request.environ['user_id'] = user.id
             flask.request.environ['domain_id'] = user.domain_id
         else:
             flask.request.environ['user_id'] = None
-            flask.request.environ['domain_id'] = None
+            # bypass APIs specify the domain as domain_name in the body
+            data = flask.request.get_json()
+            if data['domain_name']:
+                domains = self.subsystems['domains'].manager.list(name=data['domain_name'])
+                if domains:
+                    flask.request.environ['domain_id'] = domains[0].id
+                else:
+                    flask.request.environ['domain_id'] = None
+            else:
+                flask.request.environ['domain_id'] = None
 
     def map(self):
         # check if route is available @ current domain (capability or bypass route)
