@@ -12,3 +12,7 @@ class Policy(entity.Entity, db.Model):
         super(Grant, self).__init__(id)
         self.user_id = user_id
         self.role_id = role_id
+
+    @classmethod
+    def collection(cls):
+        return 'policies'
