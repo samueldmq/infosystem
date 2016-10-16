@@ -3,6 +3,7 @@ import os
 import uuid
 
 from infosystem import database
+from infosystem import request
 from infosystem import subsystem as subsystem_module
 from infosystem import scheduler
 from infosystem.common import exception
@@ -19,6 +20,8 @@ def check_uuid4(uuid_str):
 
 
 class System(flask.Flask):
+
+    request_class = request.Request
 
     def __init__(self, **kwargs):
         super().__init__(__name__, static_folder=None)
@@ -44,14 +47,9 @@ class System(flask.Flask):
 
     def prepare(self):
         """Extract route and domain info from request and add to context."""
-        method = flask.request.environ['REQUEST_METHOD']
-        original_path = flask.request.environ['PATH_INFO'].rstrip('/')
 
-        path_bits = ['<id>' if check_uuid4(i) else i for i in original_path.split('/')]
-        path = '/'.join(path_bits)
-
-        flask.request.environ['method'] = method
-        flask.request.environ['url'] = path
+        flask.request.environ['method'] = flask.request.method
+        flask.request.environ['url'] = flask.request.url
 
         id = flask.request.headers.get('token')
 
