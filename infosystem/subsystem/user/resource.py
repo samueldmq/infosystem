@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import UniqueConstraint
 from infosystem.common.subsystem import entity
 from infosystem.database import db
@@ -13,7 +14,7 @@ class User(entity.Entity, db.Model):
     active = db.Column(db.Boolean(), nullable=False)
     __table_args__ = (UniqueConstraint('domain_id', 'name', name='user_name_uk'),UniqueConstraint('domain_id', 'email', name='user_email_uk'),)
 
-    def __init__(self, id, domain_id, name, email, password, active=True):
+    def __init__(self, id, domain_id, name, email, password=uuid.uuid4().hex, active=True):
         super(User, self).__init__(id)
         self.domain_id = domain_id
         self.name = name
