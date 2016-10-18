@@ -1,5 +1,6 @@
 from infosystem.common.subsystem import controller
 
+
 class Controller(controller.Controller):
 
     def __init__(self, manager, resource_wrap, collection_wrap):

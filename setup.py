@@ -1,5 +1,13 @@
-import setuptools
+from setuptools import setup, find_packages
 
-setuptools.setup(
-    setup_requires=['pbr>=1.8'],
-    pbr=True)
+
+setup(
+    name = 'infosystem',
+    version = '0.1.5',
+    summary = 'Infosystem Framework',
+    url = 'https://github.com/samueldmq/infosystem',
+    author = 'Samuel de Medeiros Queiroz',
+    author_email = 'samueldmq@gmail.com',
+    license = 'Apache-2',
+    packages = find_packages(exclude=["tests"])
+    )

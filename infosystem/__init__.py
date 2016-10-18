@@ -16,6 +16,7 @@ class System(flask.Flask):
         super().__init__(__name__, static_folder=None)
 
         self.configure()
+        self.init_database()
 
         subsystem_list = subsystem_module.all + list(kwargs.values())
 
@@ -36,6 +37,7 @@ class System(flask.Flask):
         self.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
         self.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
+    def init_database(self):
         database.db.init_app(self)
         with self.app_context():
             database.db.create_all()
@@ -63,7 +65,11 @@ class System(flask.Flask):
 
         with self.app_context():
             # Register default domain
-            domain = self.subsystems['domains'].manager.create(name='default')
+            try:
+                domain = self.subsystems['domains'].manager.create(name='default')
+            # TODO(samueldmq): change these Exception to duplicated entry
+            except Exception:
+                pass
 
             # Register all system routes and all non-admin routes as capabilities in the default domain
             for subsystem in self.subsystems.values():
@@ -71,10 +77,15 @@ class System(flask.Flask):
                     try:
                         route_ref = self.subsystems['routes'].manager.create(name=route['action'], url=route['url'], method=route['method'], bypass=route.get('bypass', False))
                         # TODO(samueldmq): duplicate the line above here and see what breaks, it's probably the SQL session management!
-                    except exception.DuplicatedEntity:
+                        if not route_ref.admin:
+                            try:
+                               self.subsystems['capabilities'].manager.create(domain_id=domain.id, route_id=route_ref.id)
+                            except Exception:
+                                pass
+                    except Exception:
                         pass
 
-                    if not route_ref.admin:
-                        self.subsystems['capabilities'].manager.create(domain_id=domain.id, route_id=route_ref.id)
-
-            self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password='123456', email="admin@example.com")
+            try:
+                self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password='123456', email="admin@example.com")
+            except Exception:
+                pass
