@@ -2,15 +2,16 @@ import json
 import testtools
 import uuid
 
-from infosystem import application
+import infosystem
 
 
 class InfoSystemTest(object):
 
     def setUp(self):
         super(InfoSystemTest, self).setUp()
-        application.app.config['TESTING'] = True
-        self.app = application.app.test_client()
+        app = infosystem.System()
+        app.config['TESTING'] = True
+        self.app = app.test_client()
 
         response = self.app.post(
             '/tokens',
@@ -62,6 +63,9 @@ class InfoSystemTest(object):
             # Drop hidden attributes before comparing
             for attr in self.hidden_attributes:
                 ref.pop(attr)
+
+            if 'id' in ref:
+                self.assertEqual(resource_id, ref.pop('id'))
 
             self.assertDictEqual(resource_copy, ref)
         else:
@@ -288,11 +292,12 @@ class UpdateTest(InfoSystemTest):
         ref = self.new_resource_ref()
         resource = self.post(ref)
 
-        diff_body = {'name': uuid.uuid4().hex}
+        updated_body = resource.copy()
+        updated_body['name'] = uuid.uuid4().hex
 
-        updated_resource = self.update(resource['id'], diff_body)
+        updated_resource = self.update(resource['id'], updated_body)
 
-        ref.update(diff_body)
+        ref.update(updated_body)
         self.check_resource(updated_resource, ref)
 
     def test_create_without_content_type(self):

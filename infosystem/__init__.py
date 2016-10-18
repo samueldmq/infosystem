@@ -68,7 +68,7 @@ class System(flask.Flask):
             flask.request.environ['user_id'] = None
             # bypass APIs specify the domain as domain_name in the body
             data = flask.request.get_json()
-            if data['domain_name']:
+            if data and data.get('domain_name'):
                 domains = self.subsystems['domains'].manager.list(name=data['domain_name'])
                 if domains:
                     flask.request.environ['domain_id'] = domains[0].id
@@ -83,9 +83,6 @@ class System(flask.Flask):
         url = flask.request.environ['url']
         method = flask.request.environ['method']
         domain_id = flask.request.environ['domain_id']
-
-        if url == '/users':
-            import pdb; pdb.set_trace()
 
         routes = self.subsystems['routes'].manager.list(url=url, method=method)
         if not routes:
