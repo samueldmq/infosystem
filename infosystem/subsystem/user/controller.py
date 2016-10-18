@@ -5,8 +5,6 @@ class Controller(controller.Controller):
     def __init__(self, manager, resource_wrap, collection_wrap):
         super(Controller, self).__init__(manager, resource_wrap, collection_wrap)
 
-    # TODO(samueldmq): this method and the one just below can share code
-    # TODO(samueldmq): make sure rbac works if open [""] and a token is passed!
     def restore(self):
         if not flask.request.is_json:
             return flask.Response(

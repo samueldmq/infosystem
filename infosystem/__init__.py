@@ -1,22 +1,11 @@
 import flask
 import os
-import uuid
 
 from infosystem import database
 from infosystem import request
 from infosystem import subsystem as subsystem_module
 from infosystem import scheduler
 from infosystem.common import exception
-from infosystem.common import authorization
-from infosystem.common import exception
-from infosystem import database
-
-
-def check_uuid4(uuid_str):
-    try:
-        return uuid.UUID(uuid_str, version=4)
-    except ValueError:
-        return False
 
 
 class System(flask.Flask):
@@ -41,89 +30,7 @@ class System(flask.Flask):
 
         self.bootstrap()
 
-        self.before_request(self.prepare)
-        self.before_request(self.map)
-        self.before_request(self.protect)
-
-    def prepare(self):
-        """Extract route and domain info from request and add to context."""
-
-        flask.request.environ['method'] = flask.request.method
-        flask.request.environ['url'] = flask.request.url
-
-        id = flask.request.headers.get('token')
-
-        if id:
-            try:
-                token = self.subsystems['tokens'].manager.get(id=id)
-            except exception.NotFound:
-                return flask.Response(response=None, status=401)
-
-            user = self.subsystems['users'].manager.list(id=token.user_id)[0]
-            flask.request.environ['user_id'] = user.id
-            flask.request.environ['domain_id'] = user.domain_id
-        else:
-            flask.request.environ['user_id'] = None
-            # bypass APIs specify the domain as domain_name in the body
-            data = flask.request.get_json()
-            if data and data.get('domain_name'):
-                domains = self.subsystems['domains'].manager.list(name=data['domain_name'])
-                if domains:
-                    flask.request.environ['domain_id'] = domains[0].id
-                else:
-                    flask.request.environ['domain_id'] = None
-            else:
-                flask.request.environ['domain_id'] = None
-
-    def map(self):
-        # check if route is available @ current domain (capability or bypass route)
-
-        url = flask.request.environ['url']
-        method = flask.request.environ['method']
-        domain_id = flask.request.environ['domain_id']
-
-        routes = self.subsystems['routes'].manager.list(url=url, method=method)
-        if not routes:
-            return flask.Response(response=None, status=404)
-
-        route = routes[0]
-        capabilities = self.subsystems['capabilities'].manager.list(route_id=route.id, domain_id=domain_id)
-
-        # TODO(samueldmq): sysadmin won't provide a domain, so capabilities will be empty
-        # treat this case here once we support sysadmin
-        if not capabilities:
-            return flask.Response(response=None, status=404)
-
-    def protect(self):
-        url = flask.request.environ['url']
-        method = flask.request.environ['method']
-        domain_id = flask.request.environ['domain_id']
-        user_id = flask.request.environ['user_id']
-
-        route = self.subsystems['routes'].manager.list(url=url, method=method)[0]
-        if route.bypass:
-            return
-
-        # check the current user has enough privilegies to access this route (roles or capability is open)
-        grants = self.subsystems['grants'].manager.list(user_id=user_id)
-        user_role_ids = [g.role_id for g in grants]
-
-
-        # TODO(samueldmq): sysadmin won't provide a domain, so capabilities will be empty
-        # treat this case here once we support sysadmin
-        capability = self.subsystems['capabilities'].manager.list(route_id=route.id, domain_id=domain_id)[0]
-
-        policies = self.subsystems['policies'].manager.list(capability_id=capability.id)
-
-        # open capability
-        if not policies:
-            return
-
-        policy_role_ids = [p.role_id for p in policies]
-
-        intersection = set(user_role_ids).intersection(policy_role_ids)
-        if not intersection:
-            return flask.Response(response=None, status=401)
+        self.before_request(request.RequestManager(self.subsystems).before_request)
 
     def configure(self):
         self.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
@@ -162,7 +69,7 @@ class System(flask.Flask):
             for subsystem in self.subsystems.values():
                 for route in subsystem.router.routes:
                     try:
-                        route_ref = self.subsystems['routes'].manager.create(name=route['action'], url=route['url'], method=route['method'])
+                        route_ref = self.subsystems['routes'].manager.create(name=route['action'], url=route['url'], method=route['method'], bypass=route.get('bypass', False))
                         # TODO(samueldmq): duplicate the line above here and see what breaks, it's probably the SQL session management!
                     except exception.DuplicatedEntity:
                         pass
