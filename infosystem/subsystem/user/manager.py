@@ -18,14 +18,14 @@ class Restore(operation.Operation):
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
 
-        users = self.manager.api.user.list(email=email)
+        users = self.manager.api.users.list(email=email)
         if not users:
             raise exception.OperationBadRequest()
 
         self.user = users[0]
         self.user_id = self.user.id
 
-        domains = self.manager.api.domain.list(name=domain_name)
+        domains = self.manager.api.domains.list(name=domain_name)
         if not domains:
             raise exception.OperationBadRequest()
 
@@ -33,7 +33,7 @@ class Restore(operation.Operation):
         return True
 
     def do(self, session, **kwargs):
-        token = self.manager.api.token.create(user=self.user)
+        token = self.manager.api.tokens.create(user=self.user)
         token_id = token.id
 
         from_email = 'oliveira.francois@gmail.com'
@@ -69,8 +69,8 @@ class Reset(operation.Operation):
         return True
 
     def do(self, session, **kwargs):
-        token = self.manager.api.token.get(id=self.token)
-        self.manager.api.user.update(id=token.user_id, password=self.password)
+        token = self.manager.api.tokens.get(id=self.token)
+        self.manager.api.users.update(id=token.user_id, password=self.password)
 
 
 class Capabilities(operation.Operation):
@@ -83,18 +83,18 @@ class Capabilities(operation.Operation):
         return True
 
     def do(self, session, **kwargs):
-        token = self.manager.api.token.get(id=self.token)
-        grants = self.manager.api.grant.list(user_id=token.user_id)
+        token = self.manager.api.tokens.get(id=self.token)
+        grants = self.manager.api.grants.list(user_id=token.user_id)
         grants_ids = [g.role_id for g in grants]
-        roles = self.manager.api.role.list()
+        roles = self.manager.api.roles.list()
 
         user_roles_id = [r.id for r in roles if r.id in grants_ids]
 
         # FIXME(fdoliveira) Try to send user_roles_id as paramater on query
-        policies = self.manager.api.policy.list()
+        policies = self.manager.api.policies.list()
         policies_capabilitys_id = [p.capability_id for p in policies if ((p.bypass) or (p.role_id == None) or (p.role_id in user_roles_id))]
 
-        capabilities = self.manager.api.capability.list()
+        capabilities = self.manager.api.capabilities.list()
 
         policy_capabilities = [c for c in capabilities if c.id in policies_capabilitys_id]
 
@@ -108,4 +108,4 @@ class Manager(manager.Manager):
         self.restore = Restore(self)
         self.reset = Reset(self)
         # TODO(samueldmq): re-enable /users/<id>/capabilities
-        # self.capabilities = Capabilities(self)
+        self.capabilities = Capabilities(self)
