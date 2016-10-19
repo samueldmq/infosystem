@@ -19,7 +19,7 @@ class Controller(controller.Controller):
         data = flask.request.get_json()
 
         try:
-            entity = self.manager.restore(data)
+            entity = self.manager.restore(**data)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)
@@ -37,7 +37,7 @@ class Controller(controller.Controller):
         data = flask.request.get_json()
 
         try:
-            entity = self.manager.reset(data)
+            entity = self.manager.reset(**data)
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)

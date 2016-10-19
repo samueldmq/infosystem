@@ -8,7 +8,7 @@ class Router(router.Router):
     @property
     def routes(self):
         return super().routes + [
-            {'action': 'restore', 'method': 'POST', 'url': self.collection_url + '/restore', 'callback': self.controller.restore},
+            {'action': 'restore', 'method': 'POST', 'url': self.collection_url + '/restore', 'callback': self.controller.restore, 'bypass': True},
             {'action': 'reset', 'method': 'POST', 'url': self.collection_url + '/reset', 'callback': self.controller.reset},
             {'action': 'capabilities', 'method': 'GET', 'url': self.collection_url + '/capabilities', 'callback': self.controller.capabilities},
             {'action': 'capabilities', 'method': 'GET', 'url': self.collection_url + '/routes', 'callback': self.controller.routes},
