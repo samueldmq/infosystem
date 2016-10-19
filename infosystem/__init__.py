@@ -76,7 +76,7 @@ class System(flask.Flask):
                         route_ref = self.subsystems['routes'].manager.create(name=route['action'], url=route['url'], method=route['method'], bypass=route.get('bypass', False))
                         # TODO(samueldmq): duplicate the line above here and see what breaks, it's probably the SQL session management!
 
-                        if not route_ref.admin:
+                        if not route_ref.sysadmin:
                             capability = self.subsystems['capabilities'].manager.create(domain_id=domain.id, route_id=route_ref.id)
                             self.subsystems['policies'].manager.create(capability_id=capability.id, role_id=role.id)
 

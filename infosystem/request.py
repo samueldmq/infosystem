@@ -43,7 +43,7 @@ class RequestManager(object):
             return flask.Response(response=None, status=404)
         route = routes[0]
 
-        if route.admin:
+        if route.sysadmin:
             # TODO(samueldmq): implement sysadmin logic
             return
 
