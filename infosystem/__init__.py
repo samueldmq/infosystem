@@ -69,7 +69,12 @@ class System(flask.Flask):
                 domain = self.subsystems['domains'].manager.create(name='default')
             # TODO(samueldmq): change these Exception to duplicated entry
             except Exception:
-                pass
+                domain = self.subsystems['domains'].manager.list(name='default')[0]
+
+            try:
+                role = self.subsystems['roles'].manager.create(name='admin', domain_id=domain.id)
+            except Exception:
+                role = self.subsystems['roles'].manager.list(name='admin', domain_id=domain.id)[0]
 
             # Register all system routes and all non-admin routes as capabilities in the default domain
             for subsystem in self.subsystems.values():
@@ -77,15 +82,26 @@ class System(flask.Flask):
                     try:
                         route_ref = self.subsystems['routes'].manager.create(name=route['action'], url=route['url'], method=route['method'], bypass=route.get('bypass', False))
                         # TODO(samueldmq): duplicate the line above here and see what breaks, it's probably the SQL session management!
-                        if not route_ref.admin:
-                            try:
-                               self.subsystems['capabilities'].manager.create(domain_id=domain.id, route_id=route_ref.id)
-                            except Exception:
-                                pass
                     except Exception:
-                        pass
+                        route_ref = self.subsystems['routes'].manager.list(name=route['action'], url=route['url'], method=route['method'], bypass=route.get('bypass', False))[0]
+
+                    if not route_ref.admin:
+                        try:
+                            capability = self.subsystems['capabilities'].manager.create(domain_id=domain.id, route_id=route_ref.id)
+                        except Exception:
+                            capability = self.subsystems['capabilities'].manager.list(domain_id=domain.id, route_id=route_ref.id)[0]
+
+                        try:
+                            self.subsystems['policies'].manager.create(capability_id=capability.id, role_id=role.id)
+                        except Exception as e:
+                            print(type(e))
 
             try:
-                self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password='123456', email="admin@example.com")
+                user = self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password='123456', email="admin@example.com")
+            except Exception:
+                user = self.subsystems['users'].manager.list(domain_id=domain.id, name='admin', password='123456', email="admin@example.com")[0]
+
+            try:
+                self.subsystems['grants'].manager.create(user_id=user.id, role_id=role.id)
             except Exception:
                 pass
