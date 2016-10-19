@@ -34,6 +34,9 @@ class RequestManager(object):
         self.subsystems = subsystems
 
     def before_request(self):
+        if flask.request.method == 'OPTIONS':
+            return
+
         routes = self.subsystems['routes'].manager.list(url=flask.request.url,
                                                         method=flask.request.method)
         if not routes:
