@@ -94,7 +94,7 @@ class System(flask.Flask):
                         try:
                             self.subsystems['policies'].manager.create(capability_id=capability.id, role_id=role.id)
                         except Exception as e:
-                            print(type(e))
+                            pass
 
             try:
                 user = self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password='123456', email="admin@example.com")
