@@ -108,11 +108,40 @@ class Capabilities(operation.Operation):
         return policy_capabilities + open_capabilities
 
 
+class Routes(operation.Operation):
+
+    def do(self, session, user_id, **kwargs):
+        grants = self.manager.api.grants.list(user_id=user_id)
+        grants_ids = [g.role_id for g in grants]
+        roles = self.manager.api.roles.list()
+
+        user_roles_id = [r.id for r in roles if r.id in grants_ids]
+
+        # FIXME(fdoliveira) Try to send user_roles_id as paramater on query
+        policies = self.manager.api.policies.list()
+        policies_capabilitys_id = [p.capability_id for p in policies if p.role_id in user_roles_id]
+
+        user = self.manager.api.users.list(id=user_id)[0]
+        capabilities = self.manager.api.capabilities.list(domain_id=user.domain_id)
+
+        policy_capabilities = [c for c in capabilities if c.id in policies_capabilitys_id]
+
+        # NOTE(samueldmq): if there is no policy for a capabiltiy, then it's open! add it too!
+        restricted_capabilities = [p.capability_id for p in policies]
+        open_capabilities = [c for c in capabilities if c.id not in restricted_capabilities]
+
+        user_routes = [self.manager.api.routes.get(id=c.route_id) for c in (policy_capabilities + open_capabilities)]
+
+        bypass_routes = self.manager.api.routes.list(bypass=True)
+
+        return list(set(user_routes).union(set(bypass_routes)))
+
+
 class Manager(manager.Manager):
 
     def __init__(self, driver):
         super(Manager, self).__init__(driver)
         self.restore = Restore(self)
         self.reset = Reset(self)
-        # TODO(samueldmq): re-enable /users/<id>/capabilities
         self.capabilities = Capabilities(self)
+        self.routes = Routes(self)
