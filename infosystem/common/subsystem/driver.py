@@ -46,7 +46,14 @@ class Driver(object):
         return result
 
     def list(self, session, **kwargs):
-        query = session.query(self.resource).filter_by(**kwargs)
+        query = session.query(self.resource)
+        for k,v in kwargs.items():
+            if hasattr(self.resource, k):
+                if isinstance(v, str) and '%' in v:
+                    query = query.filter(getattr(self.resource, k).like(v))
+                else:
+                    query = query.filter(getattr(self.resource, k) == v)
+        # query = session.query(self.resource).filter_by(**kwargs)
         result = query.all()
         return result
 
