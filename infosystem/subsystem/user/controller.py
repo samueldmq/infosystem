@@ -46,26 +46,6 @@ class Controller(controller.Controller):
                               status=200,
                               mimetype="application/json")
 
-    def capabilities(self):
-        if not flask.request.is_json:
-            return flask.Response(
-                response=exception.BadRequestContentType.message,
-                status=exception.BadRequestContentType.status)
-
-        try:
-            entities = self.manager.capabilities()
-        except exception.InfoSystemException as exc:
-            return flask.Response(response=exc.message,
-                                  status=exc.status)
-
-        response = {"capabilitys": (
-            [entity if isinstance(entity, dict) else entity.to_dict()
-            for entity in entities])}
-
-        return flask.Response(response=json.dumps(response, default=str),
-                              status=200,
-                              mimetype="application/json")
-
     def routes(self):
         if not flask.request.is_json:
             return flask.Response(

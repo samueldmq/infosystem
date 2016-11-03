@@ -73,41 +73,6 @@ class Reset(operation.Operation):
         self.manager.api.users.update(id=token.user_id, password=self.password)
 
 
-class Capabilities(operation.Operation):
-
-    def pre(self, **kwargs):
-        self.token = flask.request.headers.get('token')
-
-        if not (self.token):
-            raise exception.OperationBadRequest()
-        return True
-
-    def do(self, session, **kwargs):
-        token = self.manager.api.tokens.get(id=self.token)
-        grants = self.manager.api.grants.list(user_id=token.user_id)
-        grants_ids = [g.role_id for g in grants]
-        roles = self.manager.api.roles.list()
-
-        user_roles_id = [r.id for r in roles if r.id in grants_ids]
-
-        # FIXME(fdoliveira) Try to send user_roles_id as paramater on query
-        policies = self.manager.api.policies.list()
-        policies_capabilitys_id = [p.capability_id for p in policies if p.role_id in user_roles_id]
-
-        user = self.manager.api.users.list(id=token.user_id)[0]
-        capabilities = self.manager.api.capabilities.list(domain_id=user.domain_id)
-
-        policy_capabilities = [c for c in capabilities if c.id in policies_capabilitys_id]
-
-        # NOTE(samueldmq): if there is no policy for a capabiltiy, then it's open! add it too!
-        restricted_capabilities = [p.capability_id for p in policies]
-        open_capabilities = [c for c in capabilities if c.id not in restricted_capabilities]
-
-        # TODO(samueldmq): should we return bypass routes too ? how if it is a list of capabilities ?
-
-        return policy_capabilities + open_capabilities
-
-
 class Routes(operation.Operation):
 
     def do(self, session, user_id, **kwargs):
@@ -143,5 +108,4 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(driver)
         self.restore = Restore(self)
         self.reset = Reset(self)
-        self.capabilities = Capabilities(self)
         self.routes = Routes(self)
