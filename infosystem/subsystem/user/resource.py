@@ -2,12 +2,14 @@ import uuid
 from sqlalchemy import UniqueConstraint
 from infosystem.common.subsystem import entity
 from infosystem.database import db
+from sqlalchemy import orm
 
 
 class User(entity.Entity, db.Model):
 
     attributes = ['id', 'domain_id', 'name', 'email', 'active']
     domain_id = db.Column(db.CHAR(32), db.ForeignKey("domain.id"), nullable=False)
+    domain = orm.relationship("Domain")
     name = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)

@@ -56,6 +56,9 @@ class Controller(object):
                 filters[k] = False
             elif v == 'null':
                 filters[k] = None
+
+        extra = filters.pop('extra', None)
+
         try:
             entities = self.manager.list(**filters)
         except exception.InfoSystemException as exc:
@@ -65,6 +68,22 @@ class Controller(object):
         response = {self.collection_wrap: (
             [entity if isinstance(entity, dict) else entity.to_dict()
             for entity in entities])}
+
+        if extra:
+            if entities:
+                wrapper = getattr(entities[0], extra).collection()
+
+                extra_objs = {}
+                for entity in entities:
+                    obj = getattr(entity, extra)
+                    extra_objs[obj.id] = obj
+
+                objs_list = [obj.to_dict() for obj in extra_objs.values()]
+                extra_dict = {'extra': {wrapper: objs_list}}
+            else:
+                extra_dict = {'extra': []}
+
+            response.update(extra_dict)
 
         return flask.Response(response=json.dumps(response, default=str),
                               status=200,
