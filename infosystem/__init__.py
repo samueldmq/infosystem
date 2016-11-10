@@ -12,13 +12,13 @@ class System(flask.Flask):
 
     request_class = request.Request
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(__name__, static_folder=None)
 
         self.configure()
         self.init_database()
 
-        subsystem_list = subsystem_module.all + list(kwargs.values())
+        subsystem_list = subsystem_module.all + list(kwargs.values()) + list(args)
 
         self.subsystems = {s.name: s for s in subsystem_list}
         self.inject_dependencies()

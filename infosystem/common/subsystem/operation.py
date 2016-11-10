@@ -11,7 +11,7 @@ class Operation(object):
 
     def __init__(self, manager):
         self.manager = manager
-        self.driver = manager.driver
+        self.driver = manager.driver if hasattr(manager, 'driver') else None
 
     def pre(self, **kwargs):
         return True
