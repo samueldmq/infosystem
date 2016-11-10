@@ -5,17 +5,6 @@ from infosystem.common.subsystem.driver import *
 from infosystem.common.subsystem.manager import *
 from infosystem.common.subsystem.router import *
 
-import importlib
-import os
-
-
-def import_subsystems(system_dir, system_name):
-    path = os.path.join(system_dir, 'subsystem')
-    package = system_name + '.subsystem'
-    dirs = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
-    modules = [importlib.import_module(package + '.' + m) for m in dirs]
-    return [m.subsystem for m in modules if hasattr(m, 'subsystem')]
-
 
 class Subsystem(flask.Blueprint):
 
