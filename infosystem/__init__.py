@@ -3,22 +3,28 @@ import os
 
 from infosystem import database
 from infosystem import request
-from infosystem import subsystem as subsystem_module
 from infosystem import scheduler
 from infosystem.common import exception
+from infosystem.common.subsystem import import_subsystems
 
 
 class System(flask.Flask):
 
     request_class = request.Request
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, system_name=None, system_dir=None, *args, **kwargs):
         super().__init__(__name__, static_folder=None)
 
         self.configure()
         self.init_database()
 
-        subsystem_list = subsystem_module.all + list(kwargs.values()) + list(args)
+        if system_name and system_dir:
+            additional_subsystems = import_subsystems(system_dir, system_name)
+        else:
+            additional_subsystems = list(kwargs.values()) + list(args)
+
+        local_subsystems = import_subsystems(os.path.dirname(os.path.realpath(__file__)), 'infosystem')
+        subsystem_list = local_subsystems + additional_subsystems
 
         self.subsystems = {s.name: s for s in subsystem_list}
         self.inject_dependencies()
