@@ -79,9 +79,9 @@ class Controller(object):
                     extra_objs[obj.id] = obj
 
                 objs_list = [obj.to_dict() for obj in extra_objs.values()]
-                extra_dict = {'extra': {wrapper: objs_list}}
+                extra_dict = {'extras': {wrapper: objs_list}}
             else:
-                extra_dict = {'extra': []}
+                extra_dict = {'extras': []}
 
             response.update(extra_dict)
 
