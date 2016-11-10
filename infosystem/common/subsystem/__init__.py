@@ -8,20 +8,22 @@ from infosystem.common.subsystem.router import *
 
 class Subsystem(flask.Blueprint):
 
-    def __init__(self, resource, router=None, controller=None, manager=None,
-                 driver=None, operations=[]):
-        super().__init__(resource.collection(), resource.collection())
+    def __init__(self, resource=None, router=None, controller=None, manager=None,
+                 driver=None, individual_name=None, collection_name=None, operations=[]):
+        individual_name = individual_name or resource.individual()
+        collection_name = collection_name or resource.collection()
 
-        driver = driver(resource) if driver else Driver(resource)
+        super().__init__(collection_name, collection_name)
+
+        driver = driver(resource) if driver else Driver(resource) if resource else None
         manager = manager(driver) if manager else Manager(driver)
-        controller = controller(manager, resource.individual(), resource.collection()) if controller else Controller(manager, resource.individual(), resource.collection())
-        router = router(controller, resource.collection(), routes=operations) if router else Router(controller, resource.collection(), routes=operations)
+        controller = controller(manager, individual_name, collection_name) if controller else Controller(manager, individual_name, collection_name)
+        router = router(controller, collection_name, routes=operations) if router else Router(controller, collection_name, routes=operations)
 
-        self.name = resource.collection()
+        self.name = collection_name
         self.router = router
         self.manager = manager
         self.register_routes()
-
 
     def register_routes(self):
         for route in self.router.routes:
