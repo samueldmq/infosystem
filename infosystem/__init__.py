@@ -1,5 +1,6 @@
 import flask
 import os
+import hashlib
 
 from infosystem import database
 from infosystem import request
@@ -80,5 +81,5 @@ class System(flask.Flask):
                             capability = self.subsystems['capabilities'].manager.create(domain_id=domain.id, route_id=route_ref.id)
                             self.subsystems['policies'].manager.create(capability_id=capability.id, role_id=role.id)
 
-                user = self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password='123456', email="admin@example.com")
+                user = self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password=hashlib.sha256(b"123456").hexdigest(), email="admin@example.com")
                 self.subsystems['grants'].manager.create(user_id=user.id, role_id=role.id)
