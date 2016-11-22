@@ -1,4 +1,5 @@
 import uuid
+import hashlib
 
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
@@ -26,7 +27,7 @@ class Create(operation.Operation):
 
             domain_id = domains[0].id
 
-            users = self.manager.api.users.list(domain_id=domain_id, name=username, password=password)
+            users = self.manager.api.users.list(domain_id=domain_id, name=username, password=hashlib.sha256(password.encode('utf-8')).hexdigest())
             if not users:
                 return False
 
