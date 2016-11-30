@@ -1,3 +1,4 @@
+import hashlib
 import json
 import flask
 
@@ -36,7 +37,7 @@ class Restore(operation.Operation):
         token = self.manager.api.tokens.create(user=self.user)
         token_id = token.id
 
-        from_email = 'oliveira.francois@gmail.com'
+        from_email = 'infosystemcontact@gmail.com'
         recipient = self.user.email
         to_email = recipient if type(recipient) is list else [recipient]
         SUBJECT = 'TESTE ASSUNTO'
@@ -50,7 +51,7 @@ class Restore(operation.Operation):
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.ehlo()
             server.starttls()
-            server.login(from_email, '?')
+            server.login(from_email, 'abc010203')
             server.sendmail(from_email, to_email, message)
             server.quit()
         except:
@@ -70,7 +71,10 @@ class Reset(operation.Operation):
 
     def do(self, session, **kwargs):
         token = self.manager.api.tokens.get(id=self.token)
-        self.manager.api.users.update(id=token.user_id, password=self.password)
+        self.manager.update(id=token.user_id, password=self.password)
+
+    def post(self):
+        self.manager.api.tokens.delete(id=self.token)
 
 
 class Routes(operation.Operation):
@@ -102,6 +106,16 @@ class Routes(operation.Operation):
         return list(set(user_routes).union(set(bypass_routes)))
 
 
+class Update(operation.Update):
+
+    def do(self, session, **kwargs):
+        password = kwargs.get('password', None)
+        if password:
+            kwargs['password'] = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+        super().do(session, **kwargs)
+
+
 class Manager(manager.Manager):
 
     def __init__(self, driver):
@@ -109,3 +123,4 @@ class Manager(manager.Manager):
         self.restore = Restore(self)
         self.reset = Reset(self)
         self.routes = Routes(self)
+        self.update = Update(self)
