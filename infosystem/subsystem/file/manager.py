@@ -3,6 +3,7 @@ import json
 import flask
 import uuid
 import os
+from werkzeug import utils as werkzeug_utils
 
 from infosystem.common import exception
 from infosystem.common.subsystem import manager
@@ -23,21 +24,22 @@ class Create(operation.Create):
 
     def pre(self, session, **kwargs):
         # TODO(samueldmq): replace with proper domain_id
-        domain_id = self.manager.api.domains.list(name='default')[0].id
+        self.domain_id = self.manager.api.domains.list(name='default')[0].id
 
         self.file = flask.request.files.get('file', None)
-        print(self.file.filename if self.file else 'NO FILE')
         if self.file and allowed_file(self.file.filename):
-            filename = secure_filename(self.file.filename)
-            self.entity = self.driver.instantiate(id=uuid.uuid4().hex, domain_id=domain_id, name=filename)
+            filename = werkzeug_utils.secure_filename(self.file.filename)
+            self.entity = self.driver.instantiate(id=uuid.uuid4().hex, domain_id=self.domain_id, name=filename)
         else:
             # NOTE(samueldmq): this will force a 400 since the name is not provided, raise specific exception here about the file
-            self.entity = self.driver.instantiate(id=uuid.uuid4().hex, domain_id=domain_id)
+            self.entity = self.driver.instantiate(id=uuid.uuid4().hex, domain_id=self.domain_id)
 
         return self.entity.is_stable()
 
     def do(self, session, **kwargs):
-        folder = os.path.join(UPLOAD_FOLDER, domain_id)
+        folder = os.path.join(UPLOAD_FOLDER, self.domain_id)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
         self.file.save(os.path.join(folder, self.entity.name))
         super().do(session)
 
