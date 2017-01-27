@@ -47,17 +47,12 @@ class Restore(operation.Operation):
         message = """From: %s\nTo: %s\nSubject: %s\n\n%s
         """ % (from_email, ", ".join(to_email), SUBJECT, TEXT)
 
-        try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.ehlo()
-            server.starttls()
-            server.login(from_email, 'abc010203')
-            server.sendmail(from_email, to_email, message)
-            server.quit()
-        except:
-            # TODO(samueldmq): do something here!
-            pass
-
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.ehlo()
+        server.starttls()
+        server.login(from_email, 'abc010203')
+        server.sendmail(from_email, to_email, message)
+        server.quit()
 
 class Reset(operation.Operation):
 
