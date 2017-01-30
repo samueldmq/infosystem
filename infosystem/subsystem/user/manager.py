@@ -1,12 +1,66 @@
+import os
 import hashlib
-import json
+import smtplib
 import flask
+
 
 from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
 
-import smtplib
+
+def send_reset_password_email(token_id, reset_user, reset_url):
+    from_email = 'infosystemcontact@gmail.com'
+    recipient = reset_user.email
+    to_email = recipient if type(recipient) is list else [recipient]
+    SUBJECT = 'PORTAL DISTRIBUIDORA SERIDÓ - CONFIRMAR email e CRIAR senha'
+    LINK = reset_url + '/' + token_id
+
+    # Prepare actual message
+    file = open(os.path.dirname(__file__) + '/html/emailReset.html', encoding='utf-8')
+    html = file.read().strip()
+    msg_header = 'From: %s\n' \
+                    'To: %s\n' \
+                    'MIME-Version: 1.0\n' \
+                    'Content-type: text/html\n' \
+                    'Subject: %s\n' \
+                    % (from_email, ", ".join(to_email), SUBJECT)
+    msg_content = html.format(reset_link=LINK)
+    msg_full = (''.join([msg_header, msg_content])).encode()
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.ehlo()
+        server.starttls()
+        server.login(from_email, 'abc010203')
+        server.sendmail(from_email, to_email, msg_full)
+        server.quit()
+    except:
+        # TODO(samueldmq): do something here!
+        pass
+
+
+class Create(operation.Create):
+
+    def do(self, session, **kwargs):
+        self.entity = super().do(session, **kwargs)
+
+        self.token = self.manager.api.tokens.create(user=self.entity)
+        send_reset_password_email(self.token.id, self.entity, 'http://ormob-ds.dyndns.org:4200/reset')
+
+        return self.entity
+
+
+class Update(operation.Update):
+
+    def do(self, session, **kwargs):
+        password = kwargs.get('password', None)
+        if password:
+            kwargs['password'] = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+        self.entity = super().do(session, **kwargs)
+
+        return self.entity
 
 
 class Restore(operation.Operation):
@@ -14,7 +68,7 @@ class Restore(operation.Operation):
     def pre(self, **kwargs):
         domain_name = kwargs.get('domain_name', None)
         email = kwargs.get('email', None)
-        self.reset_url = kwargs.get('reset_url', None)
+        self.reset_url = kwargs.get('reset_url', 'http://ormob-ds.dyndns.org:4200/reset')
 
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
@@ -35,28 +89,7 @@ class Restore(operation.Operation):
 
     def do(self, session, **kwargs):
         token = self.manager.api.tokens.create(user=self.user)
-        token_id = token.id
-
-        from_email = 'infosystemcontact@gmail.com'
-        recipient = self.user.email
-        to_email = recipient if type(recipient) is list else [recipient]
-        SUBJECT = 'TESTE ASSUNTO'
-        TEXT = self.reset_url + '?token=' + token_id
-
-        # Prepare actual message
-        message = """From: %s\nTo: %s\nSubject: %s\n\n%s
-        """ % (from_email, ", ".join(to_email), SUBJECT, TEXT)
-
-        try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.ehlo()
-            server.starttls()
-            server.login(from_email, 'abc010203')
-            server.sendmail(from_email, to_email, message)
-            server.quit()
-        except:
-            # TODO(samueldmq): do something here!
-            pass
+        send_reset_password_email(token.id, self.user, self.reset_url)
 
 
 class Reset(operation.Operation):
@@ -106,21 +139,12 @@ class Routes(operation.Operation):
         return list(set(user_routes).union(set(bypass_routes)))
 
 
-class Update(operation.Update):
-
-    def do(self, session, **kwargs):
-        password = kwargs.get('password', None)
-        if password:
-            kwargs['password'] = hashlib.sha256(password.encode('utf-8')).hexdigest()
-
-        super().do(session, **kwargs)
-
-
 class Manager(manager.Manager):
 
     def __init__(self, driver):
         super(Manager, self).__init__(driver)
+        self.create = Create(self)
+        self.update = Update(self)
         self.restore = Restore(self)
         self.reset = Reset(self)
         self.routes = Routes(self)
-        self.update = Update(self)
