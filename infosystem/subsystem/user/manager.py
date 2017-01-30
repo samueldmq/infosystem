@@ -46,7 +46,7 @@ class Create(operation.Create):
         self.entity = super().do(session, **kwargs)
 
         self.token = self.manager.api.tokens.create(user=self.entity)
-        send_reset_password_email(self.token.id, self.entity, 'http://ormob-ds.dyndns.org:4200/reset')
+        send_reset_password_email(self.token.id, self.entity, 'http://ormob-ds.dyndns.org:4200/reset?token=')
 
         return self.entity
 
@@ -68,7 +68,7 @@ class Restore(operation.Operation):
     def pre(self, **kwargs):
         domain_name = kwargs.get('domain_name', None)
         email = kwargs.get('email', None)
-        self.reset_url = kwargs.get('reset_url', 'http://ormob-ds.dyndns.org:4200/reset')
+        self.reset_url = kwargs.get('reset_url', 'http://ormob-ds.dyndns.org:4200/reset?token=')
 
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
