@@ -9,6 +9,29 @@ from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
 
 
+_HTML_EMAIL = """
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Atualizar Senha</title>
+  </head>
+  <body>
+    <div style="width: 100%; text-align: center">
+      <h1>DISTRIBUIDORA DE ALIMENTOS SERIDÓ LTDA</h1>
+      <h2>CONFIRMAR E CRIAR SENHA</h2>
+    </div>
+
+    <p>Você acaba de ser cadastrado no portal da Distribuidora de Alimentes Seridó LTDA.</p>
+    <p>Para ter acesso ao sistema você deve clicar no link abaixo para confirmar esse email e criar uma senha.</p>
+
+    <div style="width: 100%; text-align: center">
+       <a href="{reset_link}">Clique aqui para CONFIRMAR o email e CRIAR uma senha.</a>
+    </div>
+  </body>
+</html>
+"""
+
+
 def send_reset_password_email(token_id, reset_user, reset_url):
     from_email = 'infosystemcontact@gmail.com'
     recipient = reset_user.email
@@ -17,15 +40,13 @@ def send_reset_password_email(token_id, reset_user, reset_url):
     LINK = reset_url + '/' + token_id
 
     # Prepare actual message
-    file = open(os.path.dirname(__file__) + '/html/emailReset.html', encoding='utf-8')
-    html = file.read().strip()
     msg_header = 'From: %s\n' \
                     'To: %s\n' \
                     'MIME-Version: 1.0\n' \
                     'Content-type: text/html\n' \
                     'Subject: %s\n' \
                     % (from_email, ", ".join(to_email), SUBJECT)
-    msg_content = html.format(reset_link=LINK)
+    msg_content = _HTML_EMAIL.format(reset_link=LINK)
     msg_full = (''.join([msg_header, msg_content])).encode()
 
     try:
