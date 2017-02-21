@@ -8,6 +8,7 @@ from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
 
+_RESET_URL = 'http://ormob-ds.dyndns.org:8000/#/reset/'
 
 _HTML_EMAIL = """
 <!DOCTYPE html>
@@ -67,9 +68,11 @@ class Create(operation.Create):
         self.entity = super().do(session, **kwargs)
 
         self.token = self.manager.api.tokens.create(user=self.entity)
-        send_reset_password_email(self.token.id, self.entity, 'http://ormob-ds.dyndns.org:4200/reset?token=')
 
         return self.entity
+
+    def post(self):
+        send_reset_password_email(self.token.id, self.entity, _RESET_URL)
 
 
 class Update(operation.Update):
@@ -89,7 +92,7 @@ class Restore(operation.Operation):
     def pre(self, **kwargs):
         domain_name = kwargs.get('domain_name', None)
         email = kwargs.get('email', None)
-        self.reset_url = kwargs.get('reset_url', 'http://ormob-ds.dyndns.org:4200/reset?token=')
+        self.reset_url = kwargs.get('reset_url', _RESET_URL)
 
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()

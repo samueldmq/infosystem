@@ -83,5 +83,5 @@ class System(flask.Flask):
                             if 'reset' not in route_ref.url:
                                 self.subsystems['policies'].manager.create(capability_id=capability.id, role_id=role.id)
 
-                user = self.subsystems['users'].manager.create(domain_id=domain.id, name='admin', password=hashlib.sha256(b"123456").hexdigest(), email="admin@example.com")
+                user = self.subsystems['users'].manager.create(domain_id=domain.id, name='sysadmin', password=hashlib.sha256(b"123456").hexdigest(), email="sysadmin@example.com")
                 self.subsystems['grants'].manager.create(user_id=user.id, role_id=role.id)
