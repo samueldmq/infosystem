@@ -5,6 +5,7 @@ from infosystem.database import db
 
 class Route(entity.Entity, db.Model):
 
+    attributes = ['id', 'name', 'url', 'method', 'sysadmin', 'bypass']
     name = db.Column(db.String(100), nullable=False)
     url = db.Column(db.String(80), nullable=False)
     method = db.Column(db.String(10), nullable=False)
