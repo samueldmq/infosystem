@@ -37,6 +37,7 @@ class System(flask.Flask):
     def configure(self):
         self.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
         self.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+        self.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 
     def init_database(self):
         database.db.init_app(self)
