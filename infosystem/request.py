@@ -59,8 +59,9 @@ class RequestManager(object):
                         return flask.Response(response=None, status=404)
                 else:
                     return flask.Response(response=None, status=400)
-            else:
-                return flask.Response(response=None, status=400)
+            # TODO(samueldmq): THIS SHOULD BE RE-ENABLED, DISABLED FOR NOW FOR /FOTOS
+            # else:
+            #     return flask.Response(response=None, status=400)
         else:
             token_id = flask.request.token
 
