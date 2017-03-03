@@ -37,6 +37,11 @@ class RequestManager(object):
         if flask.request.method == 'OPTIONS':
             return
 
+        # Short-circuit if accessing the root URL, which will just return the version
+        # TODO(samueldmq): Do we need to create a subsystem just for this ?
+        if not flask.request.url:
+            return
+
         routes = self.subsystems['routes'].manager.list(url=flask.request.url,
                                                         method=flask.request.method)
         if not routes:

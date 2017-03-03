@@ -9,6 +9,12 @@ from infosystem import scheduler
 from infosystem.common import exception
 
 
+POLICYLESS_ROUTES = [
+    ('POST', '/users/reset'),
+    ('GET', '/users/<id>'),
+    ('GET', '/users/routes')]
+
+
 class System(flask.Flask):
 
     request_class = request.Request
@@ -27,6 +33,9 @@ class System(flask.Flask):
         for subsystem in self.subsystems.values():
             self.register_blueprint(subsystem)
 
+        # Add version in the root URL
+        self.add_url_rule('/', view_func=self.version, methods=['GET'])
+
         self.scheduler = scheduler.Scheduler()
         self.schedule_jobs()
 
@@ -43,6 +52,9 @@ class System(flask.Flask):
         database.db.init_app(self)
         with self.app_context():
             database.db.create_all()
+
+    def version(self):
+        return '1.0.0'
 
     def schedule_jobs(self):
         pass
@@ -77,11 +89,9 @@ class System(flask.Flask):
                     for route in subsystem.router.routes:
                         route_ref = self.subsystems['routes'].manager.create(name=route['action'], url=route['url'], method=route['method'], bypass=route.get('bypass', False))
                         # TODO(samueldmq): duplicate the line above here and see what breaks, it's probably the SQL session management!
-
                         if not route_ref.sysadmin:
                             capability = self.subsystems['capabilities'].manager.create(domain_id=domain.id, route_id=route_ref.id)
-                            # TODO(samueldmq): refactor this to 'if not route_ref.any' or something like that
-                            if 'reset' not in route_ref.url:
+                            if (route_ref.method, route_ref.url) in POLICYLESS_ROUTES:
                                 self.subsystems['policies'].manager.create(capability_id=capability.id, role_id=role.id)
 
                 user = self.subsystems['users'].manager.create(domain_id=domain.id, name='sysadmin', password=hashlib.sha256(b"123456").hexdigest(), email="sysadmin@example.com")
