@@ -14,15 +14,18 @@ class Controller(object):
         self.collection_wrap = collection_wrap
 
     def create(self):
-        if not flask.request.is_json:
-            return flask.Response(
-                response=exception.BadRequestContentType.message,
-                status=exception.BadRequestContentType.status)
+        # if not flask.request.is_json:
+        #     return flask.Response(
+        #         response=exception.BadRequestContentType.message,
+        #         status=exception.BadRequestContentType.status)
 
         data = flask.request.get_json()
 
         try:
-            entity = self.manager.create(**data)
+            if data:
+                entity = self.manager.create(**data)
+            else:
+                entity = self.manager.create()
         except exception.InfoSystemException as exc:
             return flask.Response(response=exc.message,
                                   status=exc.status)
