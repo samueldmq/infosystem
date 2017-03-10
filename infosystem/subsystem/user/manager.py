@@ -38,6 +38,7 @@ def send_email(token_id, reset_user):
         url = infosystem_reset_url + token_id
 
         sparkpost.transmissions.send(
+            use_sandbox=True,
             recipients=[reset_user.email],
             html=_HTML_EMAIL.format(reset_url=url),
             from_email=infosystem_noreply_email,
