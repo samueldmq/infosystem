@@ -3,62 +3,46 @@ import hashlib
 import smtplib
 import flask
 
-
+from sparkpost import SparkPost
 from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
 
-_RESET_URL = 'http://ormob-ds.dyndns.org:8000/#/reset/'
-
 _HTML_EMAIL = """
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Atualizar Senha</title>
-  </head>
-  <body>
     <div style="width: 100%; text-align: center">
-      <h1>DISTRIBUIDORA DE ALIMENTOS SERIDÓ LTDA</h1>
-      <h2>CONFIRMAR E CRIAR SENHA</h2>
+        <h1>DISTRIBUIDORA DE ALIMENTOS SERIDÓ LTDA</h1>
+        <h2>CONFIRMAR E CRIAR SENHA</h2>
     </div>
 
     <p>Você acaba de ser cadastrado no portal da Distribuidora de Alimentes Seridó LTDA.</p>
     <p>Para ter acesso ao sistema você deve clicar no link abaixo para confirmar esse email e criar uma senha.</p>
 
     <div style="width: 100%; text-align: center">
-       <a href="{reset_link}">Clique aqui para CONFIRMAR o email e CRIAR uma senha.</a>
+        <a href="{reset_url}">Clique aqui para CONFIRMAR o email e CRIAR uma senha.</a>
     </div>
-  </body>
-</html>
 """
 
 
-def send_reset_password_email(token_id, reset_user, reset_url):
-    from_email = 'infosystemcontact@gmail.com'
-    recipient = reset_user.email
-    to_email = recipient if type(recipient) is list else [recipient]
-    SUBJECT = 'PORTAL DISTRIBUIDORA SERIDÓ - CONFIRMAR email e CRIAR senha'
-    LINK = reset_url + '/' + token_id
-
-    # Prepare actual message
-    msg_header = 'From: %s\n' \
-                    'To: %s\n' \
-                    'MIME-Version: 1.0\n' \
-                    'Content-type: text/html\n' \
-                    'Subject: %s\n' \
-                    % (from_email, ", ".join(to_email), SUBJECT)
-    msg_content = _HTML_EMAIL.format(reset_link=LINK)
-    msg_full = (''.join([msg_header, msg_content])).encode()
-
+def send_email(token_id, reset_user):
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo()
-        server.starttls()
-        server.login(from_email, 'abc010203')
-        server.sendmail(from_email, to_email, msg_full)
-        server.quit()
+        sparkpost = SparkPost()
+
+        default_reset_url = 'http://objetorelacional.com.br/#/reset/'
+        default_noreply_email = 'noreply@objetorelacional.com.br'
+
+        infosystem_reset_url = os.environ.get('INFOSYSTEM_RESET_URL', default_reset_url)
+        infosystem_noreply_email = os.environ.get('INFOSYSTEM_NOREPLY_EMAIL', default_noreply_email)
+
+        url = infosystem_reset_url + token_id
+
+        sparkpost.transmissions.send(
+            recipients=[reset_user.email],
+            html=_HTML_EMAIL.format(reset_url=url),
+            from_email=infosystem_noreply_email,
+            subject='PORTAL DISTRIBUIDORA SERIDÓ - CONFIRMAR email e CRIAR senha'
+        )
     except:
-        # TODO(samueldmq): do something here!
+        # TODO(fdoliveira): do something here!
         pass
 
 
@@ -72,7 +56,8 @@ class Create(operation.Create):
         return self.entity
 
     def post(self):
-        send_reset_password_email(self.token.id, self.entity, _RESET_URL)
+        # send_reset_password_email(self.token.id, self.entity, _RESET_URL)
+        send_email(self.token.id, self.entity)
 
 
 class Update(operation.Update):
@@ -92,7 +77,8 @@ class Restore(operation.Operation):
     def pre(self, **kwargs):
         domain_name = kwargs.get('domain_name', None)
         email = kwargs.get('email', None)
-        self.reset_url = kwargs.get('reset_url', _RESET_URL)
+        infosystem_reset_url = os.environ.get('INFOSYSTEM_RESET_URL', 'http://objetorelacional.com.br/#/reset/')
+        self.reset_url = kwargs.get('reset_url', infosystem_reset_url)
 
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
@@ -113,7 +99,7 @@ class Restore(operation.Operation):
 
     def do(self, session, **kwargs):
         token = self.manager.api.tokens.create(user=self.user)
-        send_reset_password_email(token.id, self.user, self.reset_url)
+        send_email(token.id, self.user)
 
 
 class Reset(operation.Operation):
