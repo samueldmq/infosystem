@@ -6,7 +6,7 @@ setup(
     version = '0.1.14',
     summary = 'Infosystem Framework',
     url = 'https://github.com/samueldmq/infosystem',
-    author = 'Samuel de Medeiros Queiroz, François Oliveira,
+    author = 'Samuel de Medeiros Queiroz, François Oliveira',
     author_email = 'samueldmq@gmail.com, oliveira.francois@gmail.com',
     license = 'Apache-2',
     packages = find_packages(exclude=["tests"])
