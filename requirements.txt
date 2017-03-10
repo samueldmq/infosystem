@@ -4,7 +4,6 @@ flask
 flask-sqlalchemy
 flask-rbac
 gabbi
-sparkpost
 
 # Tests
 fixtures
