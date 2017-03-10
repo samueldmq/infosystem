@@ -29,9 +29,11 @@ def send_email(token_id, reset_user):
 
         default_reset_url = 'http://objetorelacional.com.br/#/reset/'
         default_noreply_email = 'noreply@objetorelacional.com.br'
+        default_email_subject = 'PORTAL OBJETO RELACIONAL - CONFIRMAR email e CRIAR senha'
 
         infosystem_reset_url = os.environ.get('INFOSYSTEM_RESET_URL', default_reset_url)
         infosystem_noreply_email = os.environ.get('INFOSYSTEM_NOREPLY_EMAIL', default_noreply_email)
+        infosystem_email_subject = os.environ.get('INFOSYSTEM_EMAIL_SUBJECT', default_email_subject)
 
         url = infosystem_reset_url + token_id
 
@@ -39,7 +41,7 @@ def send_email(token_id, reset_user):
             recipients=[reset_user.email],
             html=_HTML_EMAIL.format(reset_url=url),
             from_email=infosystem_noreply_email,
-            subject='PORTAL DISTRIBUIDORA SERIDÓ - CONFIRMAR email e CRIAR senha'
+            subject=infosystem_email_subject
         )
     except:
         # TODO(fdoliveira): do something here!
