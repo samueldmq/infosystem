@@ -4,6 +4,7 @@ import smtplib
 import flask
 
 from sparkpost import SparkPost
+from sparkpost.exceptions import SparkPostAPIException
 from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
@@ -35,7 +36,7 @@ def send_email(token_id, reset_user):
         infosystem_reset_url = os.environ.get('INFOSYSTEM_RESET_URL', default_reset_url)
         infosystem_noreply_email = os.environ.get('INFOSYSTEM_NOREPLY_EMAIL', default_noreply_email)
         infosystem_email_subject = os.environ.get('INFOSYSTEM_EMAIL_SUBJECT', default_email_subject)
-        infosystem_email_use_sandbox = os.environ.get('INFOSYSTEM_EMAIL_USE_SANDBOX', default_email_use_sandbox)
+        infosystem_email_use_sandbox = os.environ.get('INFOSYSTEM_EMAIL_USE_SANDBOX', default_email_use_sandbox) == 'True'
 
         url = infosystem_reset_url + token_id
 
@@ -46,7 +47,7 @@ def send_email(token_id, reset_user):
             from_email=infosystem_noreply_email,
             subject=infosystem_email_subject
         )
-    except:
+    except SparkPostAPIException as err:
         # TODO(fdoliveira): do something here!
         pass
 
