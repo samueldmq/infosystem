@@ -4,8 +4,7 @@ from datetime import datetime
 from infosystem.database import db
 
 
-DATE_FMT = '%Y-%m-%d'
-DATETIME_FMT = '%Y-%m-%dT%H:%M:%SZ'
+DATETIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 class Entity(object):
@@ -35,7 +34,7 @@ class Entity(object):
             if stringify and isinstance(value, datetime):
                 d[attr] = value.strftime(DATETIME_FMT)
             elif stringify and isinstance(value, date):
-                d[attr] = value.strftime(DATE_FMT)
+                d[attr] = value.strftime(DATETIME_FMT)
             else:
                 d[attr] = value
 
