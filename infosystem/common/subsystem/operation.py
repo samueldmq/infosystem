@@ -35,13 +35,17 @@ class Operation(object):
 
         try:
             result = self.do(session, **kwargs)
+            # NOTE(fdoliveira): This flush send all pending commands to DB but not commit then
+            # This was used to prevent violations of foreign key on post inserts, updates ou deletes
+            session.flush()
             session.count -= 1
 
             self.post()
             if session.count == 0:
                 session.commit()
-        except sqlalchemy.exc.IntegrityError:
+        except sqlalchemy.exc.IntegrityError as err:
             # TODO(samueldmq): integrity error may be something else...
+            # print(err.orig.diag.constraint_name)
             raise exception.DuplicatedEntity()
         except Exception as e:
             session.rollback()
