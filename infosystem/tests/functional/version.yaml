@@ -1,0 +1,8 @@
+tests:
+
+    - name: Get version
+      url: /
+      method: GET
+      status: 200
+      response_strings:
+        - 1.0.0
