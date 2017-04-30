@@ -27,7 +27,9 @@ class Create(operation.Operation):
 
             domain_id = domains[0].id
 
-            users = self.manager.api.users.list(domain_id=domain_id, name=username, password=hashlib.sha256(password.encode('utf-8')).hexdigest())
+            password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+            users = self.manager.api.users.list(
+                domain_id=domain_id, name=username, password=password)
             if not users:
                 return False
 
@@ -37,7 +39,8 @@ class Create(operation.Operation):
 
     def do(self, session, **kwargs):
         # TODO(samueldmq): use self.user.id instead of self.user_id
-        token = self.driver.instantiate(id=uuid.uuid4().hex, user_id=self.user.id)
+        token = self.driver.instantiate(
+            id=uuid.uuid4().hex, user_id=self.user.id)
 
         self.driver.create(token, session=session)
         return token

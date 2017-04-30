@@ -6,7 +6,6 @@ from infosystem import database
 from infosystem import request
 from infosystem import subsystem as subsystem_module
 from infosystem import scheduler
-from infosystem.common import exception
 
 
 POLICYLESS_ROUTES = [
@@ -25,7 +24,9 @@ class System(flask.Flask):
         self.configure()
         self.init_database()
 
-        subsystem_list = subsystem_module.all + list(kwargs.values()) + list(args)
+        # TODO(samueldmq): Make sure all systems don't use kwargs and remove it
+        subsystem_list = (
+            subsystem_module.all + list(kwargs.values()) + list(args))
 
         self.subsystems = {s.name: s for s in subsystem_list}
         self.inject_dependencies()
@@ -41,7 +42,8 @@ class System(flask.Flask):
 
         self.bootstrap()
 
-        self.before_request(request.RequestManager(self.subsystems).before_request)
+        self.before_request(
+            request.RequestManager(self.subsystems).before_request)
 
     def configure(self):
         self.config['BASEDIR'] = os.path.abspath(os.path.dirname(__file__))

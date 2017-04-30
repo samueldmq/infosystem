@@ -2,7 +2,6 @@ from gabbi import fixture
 
 import abc
 import json
-import requests
 import uuid
 import infosystem
 import os
@@ -22,7 +21,7 @@ class Fixture(fixture.GabbiFixture):
 
     @property
     def collection(self):
-        return self.individual+ 's'
+        return self.individual + 's'
 
     @abc.abstractmethod
     def new_dict(self):
@@ -32,7 +31,8 @@ class Fixture(fixture.GabbiFixture):
         if self.individual == 'token':
             headers = {'Content-Type': 'application/json'}
         else:
-            headers = {'token': self.env('token'), 'Content-Type': 'application/json'}
+            headers = {'token': self.env('token'),
+                       'Content-Type': 'application/json'}
 
         response = self.app.post(
             '/' + self.collection,
@@ -56,7 +56,8 @@ class Fixture(fixture.GabbiFixture):
     def stop_fixture(self):
         if self.collection == 'tokens':
             return
-        headers = {'token': self.env('token'), 'Content-Type': 'application/json'}
+        headers = {'token': self.env('token'),
+                   'Content-Type': 'application/json'}
         self.app.delete('/' + self.collection + '/' + self.value,
                         headers=headers)
         os.environ.pop(self.key)
