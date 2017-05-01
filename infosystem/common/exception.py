@@ -26,7 +26,8 @@ class BadRequest(InfoSystemException):
 class OperationBadRequest(InfoSystemException):
 
     status = 400
-    message = 'Provided body does not provide valid info for performing operation'
+    message = ('Provided body does not provide valid info for '
+               'performing operation')
 
 
 class BadRequestContentType(BadRequest):

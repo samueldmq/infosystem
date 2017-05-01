@@ -5,7 +5,8 @@ from infosystem.database import db
 class Policy(entity.Entity, db.Model):
 
     attributes = ['id', 'capability_id', 'role_id']
-    capability_id = db.Column(db.CHAR(32), db.ForeignKey("capability.id"), nullable=False)
+    capability_id = db.Column(
+        db.CHAR(32), db.ForeignKey("capability.id"), nullable=False)
     role_id = db.Column(db.CHAR(32), db.ForeignKey("role.id"), nullable=False)
 
     def __init__(self, id, capability_id, role_id):

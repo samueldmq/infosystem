@@ -8,7 +8,9 @@ install:
   - pip install tox-travis
   - pip install codeclimate-test-reporter
 
-script: tox -e functional
+script:
+  - tox -e flake8
+  - tox -e functional
 
 after_failure:
   - codeclimate-test-reporter
