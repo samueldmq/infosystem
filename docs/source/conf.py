@@ -13,6 +13,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import sphinx_rtd_theme
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -32,9 +34,9 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode']
+              'sphinx.ext.doctest',
+              'sphinx.ext.coverage',
+              'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -88,7 +90,6 @@ todo_include_todos = False
 #
 html_theme = "sphinx_rtd_theme"
 
-import sphinx_rtd_theme
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -158,6 +159,3 @@ texinfo_documents = [
      author, 'infosystem', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

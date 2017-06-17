@@ -25,9 +25,13 @@ Example
 
 Let's write a service that manages foo resources.
 
-.. literalinclude:: example/resource.py
-   :language: python
-   :linenos: 
+.. code-block:: python
+   :linenos:
+
+   import infosystem
+
+   class Foo(infosystem.Resource):
+       name = Column(db.String(80), nullable=False)
 
 
 Indices and tables
