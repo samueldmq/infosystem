@@ -3,13 +3,31 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to infosystem's documentation!
-======================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :hidden:
+   :maxdepth: 1
 
+   concepts
+   users
+   operators
+   developers
+
+
+infosystem
+==========
+
+infosystem is a simple framework for writing RESTFul services in just a few
+lines of code. The key word here is *simple*.
+
+Example
+-------
+
+Let's write a service that manages foo resources.
+
+.. literalinclude:: example/resource.py
+   :language: python
+   :linenos: 
 
 
 Indices and tables

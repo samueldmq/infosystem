@@ -13,3 +13,6 @@ requests
 testtools>=1.4.0
 flask-webtest
 sphinx
+
+# Docs
+sphinx_rtd_theme

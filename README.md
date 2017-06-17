@@ -2,3 +2,6 @@
 
 # infosystem
 
+infosystem is a simple framework for writing RESTFul services.
+
+Documentation for users, operators and developers is in [readthedocs](https://github.com/user/repo/blob/branch/other_file.md)
