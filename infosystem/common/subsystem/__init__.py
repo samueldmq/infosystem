@@ -18,21 +18,15 @@ class Subsystem(flask.Blueprint):
 
         super().__init__(collection_name, collection_name)
 
-        driver = driver(resource)
-        if driver is None and resource is not None:
-            driver = Driver(resource)
-
-        manager = manager(driver)
-        if manager is None:
-            manager = Manager(driver)
-
-        controller = controller(manager, individual_name, collection_name)
-        if controller is None:
-            controller = Controller(manager, individual_name, collection_name)
-
-        router(controller, collection_name, routes=operations)
-        if router is None:
-            router = Router(controller, collection_name, routes=operations)
+        driver = driver(resource) \
+            if driver else Driver(resource) if resource else None
+        manager = manager(driver) if manager else Manager(driver)
+        controller = controller(manager, individual_name, collection_name) \
+            if controller else Controller(
+                manager, individual_name, collection_name)
+        router = router(controller, collection_name, routes=operations) \
+            if router else Router(
+                controller, collection_name, routes=operations)
 
         self.name = collection_name
         self.router = router
