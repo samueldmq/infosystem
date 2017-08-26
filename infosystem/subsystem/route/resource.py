@@ -14,8 +14,7 @@ class Route(entity.Entity, db.Model):
     active = db.Column(db.Boolean(), nullable=False)
     __table_args__ = (UniqueConstraint('url', 'method', name='route_uk'),)
 
-    def __init__(self, id, name, url, method,
-                 bypass=False, sysadmin=False, active=True):
+    def __init__(self, id, name, url, method, bypass=False, sysadmin=False, active=True):
         self.id = id
         self.name = name
         self.url = url

@@ -18,6 +18,7 @@ class Driver(object):
 
     def create(self, entity, session):
         session.add(entity)
+        session.flush()
 
     def update(self, id, data, session):
         try:
@@ -30,11 +31,12 @@ class Driver(object):
                 setattr(entity, key, value)
             else:
                 raise exception.BadRequest()
-        session.commit()
+        session.flush()
         return entity
 
     def delete(self, entity, session):
         session.delete(entity)
+        session.flush()
 
     def get(self, id, session):
         try:
@@ -53,7 +55,7 @@ class Driver(object):
                     query = query.filter(getattr(self.resource, k).like(v))
                 else:
                     query = query.filter(getattr(self.resource, k) == v)
-        # query = session.query(self.resource).filter_by(**kwargs)
+
         result = query.all()
         return result
 

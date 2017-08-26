@@ -2,6 +2,8 @@ import flask
 import json
 
 from infosystem.common import exception
+# TODO(samueldmq): find a better name to this
+from infosystem.common.subsystem import manager as m
 
 
 class Controller(object):
@@ -48,10 +50,9 @@ class Controller(object):
                               mimetype="application/json")
 
     def list(self):
-        filters = {k: flask.request.args.get(k)
-                   for k in flask.request.args.keys()}
-        # TODO(samueldmq): fix this to work in a better way
-        for k, v in filters.items():
+        filters = {k: flask.request.args.get(k) for k in flask.request.args.keys()}
+        #TODO(samueldmq): fix this to work in a better way
+        for k,v in filters.items():
             if v == 'true':
                 filters[k] = True
             elif v == 'false':
@@ -69,7 +70,7 @@ class Controller(object):
 
         response = {self.collection_wrap: (
             [entity if isinstance(entity, dict) else entity.to_dict()
-             for entity in entities])}
+            for entity in entities])}
 
         if extra:
             if entities:
@@ -80,7 +81,7 @@ class Controller(object):
                     obj = getattr(entity, extra)
                     extra_objs[obj.id] = obj
 
-                objs_list = [o.to_dict() for o in extra_objs.values()]
+                objs_list = [obj.to_dict() for obj in extra_objs.values()]
                 extra_dict = {'extras': {wrapper: objs_list}}
             else:
                 extra_dict = {'extras': []}

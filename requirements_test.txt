@@ -1,0 +1,10 @@
+# Base
+-r requirements.txt
+
+# Tests
+fixtures
+flake8
+requests
+testtools>=1.4.0
+flask-webtest
+sphinx

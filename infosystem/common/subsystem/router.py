@@ -1,3 +1,6 @@
+import flask
+
+
 class Router(object):
 
     def __init__(self, controller, collection, routes=[]):
@@ -7,37 +10,18 @@ class Router(object):
         self.resource_url = self.collection_url + '/<id>'
 
         if routes:
-            self._routes = [r for r in self.get_crud()
-                            if r['action'] in routes]
+            self._routes = [r for r in self.get_crud() if r['action'] in routes]
         else:
             self._routes = self.get_crud()
 
     def get_crud(self):
-        # TODO(samueldmq): Remove 'action', it's not really useful
-        # TODO(samueldmq): Is it possible to use annotations for URLs and
-        # remove this router? Just as flask does?
         return [
-            {'action': 'create',
-             'method': 'POST',
-             'url': self.collection_url,
-             'callback': self.controller.create},
-            {'action': 'get',
-             'method': 'GET',
-             'url': self.resource_url,
-             'callback': self.controller.get},
-            {'action': 'list',
-             'method': 'GET',
-             'url': self.collection_url,
-             'callback': self.controller.list},
-            {'action': 'update',
-             'method': 'PUT',
-             'url': self.resource_url,
-             'callback': self.controller.update},
-            {'action': 'delete',
-             'method': 'DELETE',
-             'url': self.resource_url,
-             'callback': self.controller.delete}
-        ]
+            {'action': 'create', 'method': 'POST', 'url': self.collection_url, 'callback': self.controller.create},
+            {'action': 'get',    'method': 'GET',  'url': self.resource_url,   'callback': self.controller.get},
+            {'action': 'list',   'method': 'GET',  'url': self.collection_url, 'callback': self.controller.list},
+            {'action': 'update', 'method': 'PUT',  'url': self.resource_url,   'callback': self.controller.update},
+            {'action': 'delete', 'method': 'DELETE',  'url': self.resource_url,   'callback': self.controller.delete}
+            ]
 
     @property
     def routes(self):

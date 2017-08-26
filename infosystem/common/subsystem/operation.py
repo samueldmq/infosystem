@@ -1,3 +1,4 @@
+import flask
 import uuid
 import sqlalchemy
 
@@ -22,22 +23,19 @@ class Operation(object):
         pass
 
     def __call__(self, **kwargs):
-        session = database.db.session
+        # session = getattr(kwargs, 'session', database.db.session) 
+        session = kwargs.pop('session', database.db.session)
 
         if not self.pre(session=session, **kwargs):
             raise exception.PreconditionFailed()
 
         if not getattr(session, 'count', None):
-            setattr(session, 'count', 1)
+           setattr(session, 'count', 1)
         else:
-            session.count += 1
+           session.count += 1
 
         try:
             result = self.do(session, **kwargs)
-            # NOTE(fdoliveira): This flush send all pending commands to DB but
-            # not commit then. This was used to prevent violations of foreign
-            # key on post inserts, updates ou deletes
-            session.flush()
             session.count -= 1
 
             self.post()
@@ -45,7 +43,8 @@ class Operation(object):
                 session.commit()
         except sqlalchemy.exc.IntegrityError:
             # TODO(samueldmq): integrity error may be something else...
-            # print(err.orig.diag.constraint_name)
+            session.rollback()
+            session.count = 0
             raise exception.DuplicatedEntity()
         except Exception as e:
             session.rollback()
@@ -102,7 +101,6 @@ class Delete(Operation):
 
     def do(self, session, **kwargs):
         self.driver.delete(self.entity, session=session)
-
 
 class Count(Operation):
 

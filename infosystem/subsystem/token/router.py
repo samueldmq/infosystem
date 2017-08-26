@@ -8,20 +8,9 @@ class Router(router.Router):
 
     @property
     def routes(self):
-        # TODO(samueldmq): is this the best way to re-write the defaults to
-        # only change bypass=true for create ?
+        # TODO(samueldmq): is this the best way to re-write the defaults to only change bypass=true for create ?
         return [
-            {'action': 'create',
-             'method': 'POST',
-             'url': self.collection_url,
-             'callback': self.controller.create,
-             'bypass': True},
-            {'action': 'get',
-             'method': 'GET',
-             'url': self.resource_url,
-             'callback': self.controller.get},
-            {'action': 'delete',
-             'method': 'DELETE',
-             'url': self.resource_url,
-             'callback': self.controller.delete}
+            {'action': 'create', 'method': 'POST', 'url': self.collection_url, 'callback': self.controller.create, 'bypass': True},
+            {'action': 'get',    'method': 'GET',  'url': self.resource_url,   'callback': self.controller.get},
+            {'action': 'delete', 'method': 'DELETE',  'url': self.resource_url,   'callback': self.controller.delete}
         ]

@@ -8,8 +8,7 @@ from infosystem.common import exception
 class Controller(controller.Controller):
 
     def __init__(self, manager, resource_wrap, collection_wrap):
-        super(Controller, self).__init__(
-            manager, resource_wrap, collection_wrap)
+        super(Controller, self).__init__(manager, resource_wrap, collection_wrap)
 
     def restore(self):
         if not flask.request.is_json:
@@ -53,8 +52,7 @@ class Controller(controller.Controller):
                 response=exception.BadRequestContentType.message,
                 status=exception.BadRequestContentType.status)
 
-        token = self.manager.api.tokens.get(
-            id=flask.request.headers.get('token'))
+        token = self.manager.api.tokens.get(id=flask.request.headers.get('token'))
         try:
             routes = self.manager.routes(user_id=token.user_id)
         except exception.InfoSystemException as exc:

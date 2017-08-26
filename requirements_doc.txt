@@ -1,0 +1,5 @@
+# Base
+-r requirements.txt
+
+# Docs
+sphinx_rtd_theme

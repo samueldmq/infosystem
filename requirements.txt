@@ -5,14 +5,3 @@ flask-sqlalchemy
 flask-rbac
 gabbi
 sparkpost
-
-# Tests
-fixtures
-flake8
-requests
-testtools>=1.4.0
-flask-webtest
-sphinx
-
-# Docs
-sphinx_rtd_theme
