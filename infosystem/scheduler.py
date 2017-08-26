@@ -19,7 +19,8 @@ class Scheduler(BackgroundScheduler):
     def weekly(self, callback, day='mon',hour=0, minute=0):
         if not day in ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'):
             raise ValueError
-        self.add_job(callback, 'cron', day_of_week=day, hour=hour, minute=minute)
+        self.add_job(
+            callback, 'cron', day_of_week=day, hour=hour, minute=minute)
 
     def monthly(self, callback, day=1, hour=0, minute=0):
         self.add_job(callback, 'cron', day=day, hour=hour, minute=minute)

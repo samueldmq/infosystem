@@ -1,4 +1,3 @@
-from infosystem.common.subsystem import driver
 from infosystem.common.subsystem import operation
 
 

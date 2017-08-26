@@ -20,9 +20,11 @@ class Request(flask.Request):
     @property
     def url(self):
         path_info = flask.request.environ['PATH_INFO'].rstrip('/')
-        path_bits = ['<id>' if self._check_uuid4(i) else i for i in path_info.split('/')]
+        path_bits = [
+            '<id>' if self._check_uuid4(i) else i for i in path_info.split('/')
+        ]
         return '/'.join(path_bits)
-    
+
     @property
     def token(self):
         return flask.request.headers.get('token')
@@ -37,13 +39,14 @@ class RequestManager(object):
         if flask.request.method == 'OPTIONS':
             return
 
-        # Short-circuit if accessing the root URL, which will just return the version
+        # Short-circuit if accessing the root URL,
+        # which will just return the version
         # TODO(samueldmq): Do we need to create a subsystem just for this ?
         if not flask.request.url:
             return
 
-        routes = self.subsystems['routes'].manager.list(url=flask.request.url,
-                                                        method=flask.request.method)
+        routes = self.subsystems['routes'].manager.list(
+            url=flask.request.url, method=flask.request.method)
         if not routes:
             return flask.Response(response=None, status=404)
         route = routes[0]
@@ -56,7 +59,8 @@ class RequestManager(object):
             # lookup the domain specified as domain_name in the request body
             data = flask.request.get_json()
             if data and data.get('domain_name'):
-                domains = self.subsystems['domains'].manager.list(name=data['domain_name'])
+                domains = self.subsystems['domains'].manager.list(
+                    name=data['domain_name'])
                 if domains:
                     domain_id = domains[0].id
 
@@ -64,7 +68,8 @@ class RequestManager(object):
                         return flask.Response(response=None, status=404)
                 else:
                     return flask.Response(response=None, status=400)
-            # TODO(samueldmq): THIS SHOULD BE RE-ENABLED, DISABLED FOR NOW FOR /FOTOS
+            # TODO(samueldmq): THIS SHOULD BE RE-ENABLED,
+            # DISABLED FOR NOW FOR /FOTOS
             # else:
             #     return flask.Response(response=None, status=400)
         else:
@@ -76,22 +81,26 @@ class RequestManager(object):
                 except exception.NotFound:
                     return flask.Response(response=None, status=401)
 
-                user = self.subsystems['users'].manager.list(id=token.user_id)[0]
+                user = self.subsystems['users'].manager.list(
+                    id=token.user_id)[0]
                 domain_id = user.domain_id
 
                 if not self.check_capability(route.id, user.domain_id):
                     return flask.Response(response=None, status=404)
 
                 # Now check the user grants
-                grants = self.subsystems['grants'].manager.list(user_id=user.id)
+                grants = self.subsystems['grants'].manager.list(
+                    user_id=user.id)
                 user_role_ids = [g.role_id for g in grants]
 
-
-                # TODO(samueldmq): sysadmin won't provide a domain, so capabilities will be empty
+                # TODO(samueldmq): sysadmin won't provide a domain,
+                # so capabilities will be empty
                 # treat this case here once we support sysadmin
-                capability = self.subsystems['capabilities'].manager.list(route_id=route.id, domain_id=domain_id)[0]
+                capability = self.subsystems['capabilities'].manager.list(
+                    route_id=route.id, domain_id=domain_id)[0]
 
-                policies = self.subsystems['policies'].manager.list(capability_id=capability.id)
+                policies = self.subsystems['policies'].manager.list(
+                    capability_id=capability.id)
 
                 # open capability
                 if not policies:
@@ -106,5 +115,6 @@ class RequestManager(object):
                 return flask.Response(response=None, status=401)
 
     def check_capability(self, route_id, domain_id):
-        capabilities = self.subsystems['capabilities'].manager.list(route_id=route_id, domain_id=domain_id)
+        capabilities = self.subsystems['capabilities'].manager.list(
+            route_id=route_id, domain_id=domain_id)
         return capabilities

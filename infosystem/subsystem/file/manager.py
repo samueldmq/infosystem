@@ -1,11 +1,8 @@
-import hashlib
-import json
 import flask
 import uuid
 import os
 from werkzeug import utils as werkzeug_utils
 
-from infosystem.common import exception
 from infosystem.common.subsystem import manager
 from infosystem.common.subsystem import operation
 
@@ -29,10 +26,13 @@ class Create(operation.Create):
         self.file = flask.request.files.get('file', None)
         if self.file and allowed_file(self.file.filename):
             filename = werkzeug_utils.secure_filename(self.file.filename)
-            self.entity = self.driver.instantiate(id=uuid.uuid4().hex, domain_id=self.domain_id, name=filename)
+            self.entity = self.driver.instantiate(
+                id=uuid.uuid4().hex, domain_id=self.domain_id, name=filename)
         else:
-            # NOTE(samueldmq): this will force a 400 since the name is not provided, raise specific exception here about the file
-            self.entity = self.driver.instantiate(id=uuid.uuid4().hex, domain_id=self.domain_id)
+            # NOTE(samueldmq): this will force a 400 since the name is not
+            # provided, raise specific exception here about the file
+            self.entity = self.driver.instantiate(
+                id=uuid.uuid4().hex, domain_id=self.domain_id)
 
         return self.entity.is_stable()
 

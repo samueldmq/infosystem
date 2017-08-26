@@ -1,4 +1,3 @@
-import flask
 import uuid
 import sqlalchemy
 
@@ -23,16 +22,15 @@ class Operation(object):
         pass
 
     def __call__(self, **kwargs):
-        # session = getattr(kwargs, 'session', database.db.session) 
         session = kwargs.pop('session', database.db.session)
 
         if not self.pre(session=session, **kwargs):
             raise exception.PreconditionFailed()
 
         if not getattr(session, 'count', None):
-           setattr(session, 'count', 1)
+            setattr(session, 'count', 1)
         else:
-           session.count += 1
+            session.count += 1
 
         try:
             result = self.do(session, **kwargs)
@@ -101,6 +99,7 @@ class Delete(Operation):
 
     def do(self, session, **kwargs):
         self.driver.delete(self.entity, session=session)
+
 
 class Count(Operation):
 
