@@ -11,7 +11,8 @@ from infosystem import scheduler
 ROUTES = [
     ('POST', '/users/reset'),
     ('GET', '/users/<id>'),
-    ('GET', '/users/routes')]
+    ('GET', '/users/routes')
+]
 
 
 class System(flask.Flask):
