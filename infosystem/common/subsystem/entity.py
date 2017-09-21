@@ -26,7 +26,7 @@ class Entity(object):
     def is_stable(self):
         return True
 
-    def to_dict(self, stringify=True):
+    def to_dict(self, include_dict=None, stringify=True):
         d = {}
 
         for attr in self.__class__.attributes:
@@ -37,5 +37,13 @@ class Entity(object):
                 d[attr] = value.strftime(DATETIME_FMT)
             else:
                 d[attr] = value
+
+        if include_dict:
+            for key,value in include_dict.items():
+                thing = getattr(self, key)
+                if isinstance(thing, list):
+                    d[key] = [part.to_dict(value) for part in thing]
+                else:
+                    d[key] = thing.to_dict(value)
 
         return d

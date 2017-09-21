@@ -49,6 +49,19 @@ class Controller(object):
                               status=200,
                               mimetype="application/json")
 
+    def _get_include_dict(self, query_arg):
+        lists = [l.split('.') for l in query_arg.split(',')]
+        include_dict = {}
+        for list in lists:
+            current = include_dict
+            for i in range(len(list)):
+                if list[i] in current:
+                    current[list[i]].update({list[i+1]:{}} if i < (len(list) -1) else {})
+                else:
+                    current[list[i]] = {list[i+1]:{}} if i < (len(list) -1) else {}
+                current = current[list[i]]
+        return include_dict
+
     def list(self):
         filters = {
             k: flask.request.args.get(k) for k in flask.request.args.keys()}
@@ -61,7 +74,7 @@ class Controller(object):
             elif v == 'null':
                 filters[k] = None
 
-        extra = filters.pop('extra', None)
+        include_arg = filters.pop('include', None)
 
         try:
             entities = self.manager.list(**filters)
@@ -69,25 +82,10 @@ class Controller(object):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
+        include_dict = self._get_include_dict(include_arg) if include_arg else {}
         response = {self.collection_wrap: (
-            [entity if isinstance(entity, dict) else entity.to_dict()
-                for entity in entities])}
-
-        if extra:
-            if entities:
-                wrapper = getattr(entities[0], extra).collection()
-
-                extra_objs = {}
-                for entity in entities:
-                    obj = getattr(entity, extra)
-                    extra_objs[obj.id] = obj
-
-                objs_list = [obj.to_dict() for obj in extra_objs.values()]
-                extra_dict = {'extras': {wrapper: objs_list}}
-            else:
-                extra_dict = {'extras': []}
-
-            response.update(extra_dict)
+            [entity if isinstance(entity, dict) else
+             entity.to_dict(include_dict=include_dict) for entity in entities])}
 
         return flask.Response(response=json.dumps(response, default=str),
                               status=200,
