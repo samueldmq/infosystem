@@ -16,6 +16,10 @@ class Entity(object):
         self.id = id
 
     @classmethod
+    def embedded(cls):
+        return []
+
+    @classmethod
     def individual(cls):
         return cls.__name__.lower()
 

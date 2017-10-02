@@ -8,12 +8,16 @@ class Driver(object):
         self.resource = resource
 
     def instantiate(self, **kwargs):
-        # Allow list of entities to be provided
-        for attr, value in kwargs.items():
-            if isinstance(value, list):
-                var = getattr(self.resource, attr)
-                kwargs[attr] = [var.property.mapper.class_(**ref) for ref in value]
         try:
+            for attr in self.resource.embedded():
+                if attr not in kwargs:
+                    raise Exception()
+                value = kwargs[attr]
+                if isintance(var, list):
+                    kwargs[attr] = [var.property.mapper.class_(**ref) for ref in value]
+                else:
+                    kwargs[attr] = var.property.mapper.class_(**value)
+
             instance = self.resource(**kwargs)
         except Exception:
             # TODO(samueldmq): replace with specific exception
