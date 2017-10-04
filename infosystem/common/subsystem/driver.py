@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy.orm import exc
 from infosystem.common import exception
 
@@ -9,16 +10,26 @@ class Driver(object):
 
     def instantiate(self, **kwargs):
         try:
+            embedded = {}
             for attr in self.resource.embedded():
                 if attr not in kwargs:
                     raise Exception()
-                value = kwargs[attr]
-                if isintance(var, list):
-                    kwargs[attr] = [var.property.mapper.class_(**ref) for ref in value]
-                else:
-                    kwargs[attr] = var.property.mapper.class_(**value)
+                embedded.update({attr: kwargs.pop(attr)})
 
             instance = self.resource(**kwargs)
+
+            for attr in embedded:
+                value = embedded[attr]
+                var = getattr(self.resource, attr)
+                # TODO(samueldmq): is this good enough? should we discover it?
+                mapped_attr = {self.resource.individual() + '_id': instance.id}
+                if isinstance(value, list):
+                    setattr(instance, attr, [var.property.mapper.class_(id=uuid.uuid4().hex, **dict(ref, **mapped_attr)) for ref in value])
+                else:
+                    # TODO(samueldmq): id is inserted here. it is in the
+                    # manager for the entities. do it all in the resource
+                    # contructor
+                    setattr(instance, attr, var.property.mapper.class_(id=uuid.uuid4().hex, **dict(value, **mapped_attr)))
         except Exception:
             # TODO(samueldmq): replace with specific exception
             raise exception.BadRequest()
@@ -35,11 +46,26 @@ class Driver(object):
         except exc.NoResultFound:
             raise exception.NotFound()
 
+        for attr in self.resource.embedded():
+            if attr in data:
+                value = data.pop(attr)
+                var = getattr(self.resource, attr)
+                # TODO(samueldmq): is this good enough? should we discover it?
+                mapped_attr = {self.resource.individual() + '_id': id}
+                if isinstance(value, list):
+                    setattr(entity, attr, [var.property.mapper.class_(id=uuid.uuid4().hex, **dict(ref, **mapped_attr)) for ref in value])
+                else:
+                    # TODO(samueldmq): id is inserted here. it is in the
+                    # manager for the entities. do it all in the resource
+                    # contructor
+                    setattr(entity, attr, var.property.mapper.class_(id=uuid.uuid4().hex, **dict(value, **mapped_attr)))
+
         for key, value in data.items():
             if hasattr(entity, key):
                 setattr(entity, key, value)
             else:
                 raise exception.BadRequest()
+
         session.flush()
         return entity
 

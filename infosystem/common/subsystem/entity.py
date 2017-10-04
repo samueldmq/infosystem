@@ -42,6 +42,8 @@ class Entity(object):
             else:
                 d[attr] = value
 
+        include_dict = include_dict or {}
+        include_dict.update({attr: None for attr in self.embedded()})
         if include_dict:
             for key,value in include_dict.items():
                 thing = getattr(self, key)
