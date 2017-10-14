@@ -3,7 +3,7 @@ from datetime import datetime
 
 from infosystem.database import db
 
-
+DATE_FMT = '%Y-%m-%d'
 DATETIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
@@ -45,7 +45,7 @@ class Entity(object):
         include_dict = include_dict or {}
         include_dict.update({attr: None for attr in self.embedded()})
         if include_dict:
-            for key,value in include_dict.items():
+            for key, value in include_dict.items():
                 if not isinstance(value, dict):
                     # it's a filter
                     if getattr(self, key) != value:
@@ -64,7 +64,8 @@ class Entity(object):
                             # filter mismatch, ignore the expansion
                             pass
                     if values and empty:
-                        # filter mismatch, no entity matched the filter, re-raise and ignore current entity
+                        # filter mismatch, no entity matched the filter,
+                        # re-raise and ignore current entity
                         raise AssertionError()
                     d[key] = [part.to_dict(value) for part in thing]
                 else:
