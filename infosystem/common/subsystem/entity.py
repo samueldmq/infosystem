@@ -46,10 +46,32 @@ class Entity(object):
         include_dict.update({attr: None for attr in self.embedded()})
         if include_dict:
             for key,value in include_dict.items():
+                if not isinstance(value, dict):
+                    # it's a filter
+                    if getattr(self, key) != value:
+                        raise AssertionError()
+                    continue
+
                 thing = getattr(self, key)
                 if isinstance(thing, list):
+                    values = []
+                    empty = True
+                    for part in thing:
+                        try:
+                            values.append(part.to_dict(value))
+                            empty = False
+                        except AssertionError:
+                            # filter mismatch, ignore the expansion
+                            pass
+                    if values and empty:
+                        # filter mismatch, no entity matched the filter, re-raise and ignore current entity
+                        raise AssertionError()
                     d[key] = [part.to_dict(value) for part in thing]
                 else:
-                    d[key] = thing.to_dict(value)
+                    try:
+                        d[key] = thing.to_dict(value)
+                    except AssertionError:
+                        # filter mismatch, re-raise to ignore current entity
+                        raise
 
         return d

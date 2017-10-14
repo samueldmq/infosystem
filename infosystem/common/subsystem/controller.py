@@ -49,7 +49,7 @@ class Controller(object):
                               status=200,
                               mimetype="application/json")
 
-    def _get_include_dict(self, query_arg):
+    def _get_include_dict(self, query_arg, filter_args):
         lists = [l.split('.') for l in query_arg.split(',')]
         include_dict = {}
         for list in lists:
@@ -60,6 +60,17 @@ class Controller(object):
                 else:
                     current[list[i]] = {list[i+1]:{}} if i < (len(list) -1) else {}
                 current = current[list[i]]
+
+        for k,v in filter_args.items():
+            list = k.split('.')
+            current = include_dict
+            for i in list[:-1]: # last element is the attribute to filter on
+                try:
+                    current = current[i]
+                except AttributeError:
+                    # ignore current filter, entity to filter on is not included
+                    continue
+            current[list[-1]] = v
         return include_dict
 
     def list(self):
@@ -75,6 +86,11 @@ class Controller(object):
                 filters[k] = None
 
         include_arg = filters.pop('include', None)
+        filter_args = {k:v for k,v in filters.items() if '.' in k}
+        # clean up original filters
+        for k in filter_args.keys():
+            # NOTE(samueldmq): I'm not sure I can pop in the list comprehesion above...
+            filters.pop(k)
 
         try:
             entities = self.manager.list(**filters)
@@ -82,10 +98,19 @@ class Controller(object):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        include_dict = self._get_include_dict(include_arg) if include_arg else {}
-        response = {self.collection_wrap: (
-            [entity if isinstance(entity, dict) else
-             entity.to_dict(include_dict=include_dict) for entity in entities])}
+        include_dict = self._get_include_dict(include_arg, filter_args) if include_arg else {}
+        collection = []
+        for entity in entities:
+            if isinstance(entity, dict):
+                collection.append(entity)
+            else:
+                try:
+                    collection.append(entity.to_dict(include_dict=include_dict))
+                except AssertionError:
+                    # ignore current entity, filter mismatch
+                    pass
+
+        response = {self.collection_wrap: collection}
 
         return flask.Response(response=json.dumps(response, default=str),
                               status=200,
