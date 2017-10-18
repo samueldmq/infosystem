@@ -43,7 +43,7 @@ class Entity(object):
                 d[attr] = value
 
         include_dict = include_dict or {}
-        include_dict.update({attr: None for attr in self.embedded()})
+        include_dict.update({attr: {} for attr in self.embedded()})
         if include_dict:
             for key, value in include_dict.items():
                 if not isinstance(value, dict):
