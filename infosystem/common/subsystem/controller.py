@@ -57,10 +57,10 @@ class Controller(object):
             for i in range(len(list)):
                 if list[i] in current:
                     current[list[i]].update({
-                        list[i+1]: {}} if i < (len(list) - 1) else {})
+                        list[i + 1]: {}} if i < (len(list) - 1) else {})
                 else:
                     current[list[i]] = {
-                        list[i+1]: {}} if i < (len(list) - 1) else {}
+                        list[i + 1]: {}} if i < (len(list) - 1) else {}
                 current = current[list[i]]
 
         for k, v in filter_args.items():
