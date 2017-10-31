@@ -45,7 +45,7 @@ class Controller(object):
 
         response = {self.resource_wrap: entity.to_dict()}
 
-        return flask.Response(response=json.dumps(response),
+        return flask.Response(response=json.dumps(response, default=str),
                               status=200,
                               mimetype="application/json")
 
