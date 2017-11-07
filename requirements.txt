@@ -1,6 +1,6 @@
 # System
 apscheduler
-flask
+flask==0.12.2
 flask-sqlalchemy
 flask-rbac
 gabbi
