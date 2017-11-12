@@ -24,12 +24,15 @@ class Driver(object):
                 # TODO(samueldmq): is this good enough? should we discover it?
                 mapped_attr = {self.resource.individual() + '_id': instance.id}
                 if isinstance(value, list):
-                    setattr(instance, attr, [var.property.mapper.class_(id=uuid.uuid4().hex, **dict(ref, **mapped_attr)) for ref in value])
+                    setattr(instance, attr, [var.property.mapper.class_(
+                        id=uuid.uuid4().hex, **dict(ref, **mapped_attr))
+                        for ref in value])
                 else:
                     # TODO(samueldmq): id is inserted here. it is in the
                     # manager for the entities. do it all in the resource
                     # contructor
-                    setattr(instance, attr, var.property.mapper.class_(id=uuid.uuid4().hex, **dict(value, **mapped_attr)))
+                    setattr(instance, attr, var.property.mapper.class_(
+                        id=uuid.uuid4().hex, **dict(value, **mapped_attr)))
         except Exception:
             # TODO(samueldmq): replace with specific exception
             raise exception.BadRequest()
@@ -53,12 +56,15 @@ class Driver(object):
                 # TODO(samueldmq): is this good enough? should we discover it?
                 mapped_attr = {self.resource.individual() + '_id': id}
                 if isinstance(value, list):
-                    setattr(entity, attr, [var.property.mapper.class_(id=uuid.uuid4().hex, **dict(ref, **mapped_attr)) for ref in value])
+                    setattr(entity, attr, [var.property.mapper.class_(
+                        id=uuid.uuid4().hex, **dict(ref, **mapped_attr))
+                        for ref in value])
                 else:
                     # TODO(samueldmq): id is inserted here. it is in the
                     # manager for the entities. do it all in the resource
                     # contructor
-                    setattr(entity, attr, var.property.mapper.class_(id=uuid.uuid4().hex, **dict(value, **mapped_attr)))
+                    setattr(entity, attr, var.property.mapper.class_(
+                        id=uuid.uuid4().hex, **dict(value, **mapped_attr)))
 
         for key, value in data.items():
             if hasattr(entity, key):
