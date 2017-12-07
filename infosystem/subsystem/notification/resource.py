@@ -25,7 +25,8 @@ class Notification(entity.Entity, db.Model):
         self.date = datetime.strptime(date, entity.DATETIME_FMT)
         self.subject = subject
         self.body = body
-        self.read_date = read_date
+        if (read_date is not None):
+            self.read_date = datetime.strptime(read_date, entity.DATETIME_FMT)
 
     @classmethod
     def embedded(cls):
