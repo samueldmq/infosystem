@@ -1,4 +1,5 @@
 from sqlalchemy import orm
+from datetime import datetime
 from infosystem.database import db
 from infosystem.subsystem.tag import resource
 from infosystem.common.subsystem import entity
@@ -11,10 +12,9 @@ class Notification(entity.Entity, db.Model):
     user_id = db.Column(
         db.CHAR(32), db.ForeignKey("user.id"), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    subject = db.Column(db.String(50), nullable=False) 
+    subject = db.Column(db.String(50), nullable=False)
     body = db.Column(db.String(250), nullable=False)
     read_date = db.Column(db.Date, nullable=True)
-
     tags = orm.relationship(
         "NotificationTag", backref=orm.backref('notification'),
         cascade='delete,delete-orphan,save-update')
@@ -22,10 +22,14 @@ class Notification(entity.Entity, db.Model):
     def __init__(self, id, user_id, date, subject, body, read_date=None):
         super().__init__(id)
         self.user_id = user_id
-        self.date = date
+        self.date = datetime.strptime(date, entity.DATETIME_FMT)
         self.subject = subject
         self.body = body
         self.read_date = read_date
+
+    @classmethod
+    def embedded(cls):
+        return ['tags']
 
 
 class NotificationTag(resource.Tag, db.Model):
