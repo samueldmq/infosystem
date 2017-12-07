@@ -35,6 +35,8 @@ class Notification(entity.Entity, db.Model):
 
 class NotificationTag(resource.Tag, db.Model):
 
+    attributes = ['label']
+
     notification_id = db.Column(
         db.CHAR(32), db.ForeignKey("notification.id"), nullable=False)
 
