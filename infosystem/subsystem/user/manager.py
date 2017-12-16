@@ -9,12 +9,12 @@ from infosystem.common.subsystem import operation
 
 _HTML_EMAIL_TEMPLATE = """
     <div style="width: 100%; text-align: center">
-        <h1>DISTRIBUIDORA DE ALIMENTOS SERIDÓ LTDA</h1>
+        <h1>{app_name}</h1>
         <h2>CONFIRMAR E CRIAR SENHA</h2>
     </div>
 
     <p>Você acaba de ser cadastrado no portal da
-        Distribuidora de Alimentes Seridó LTDA.</p>
+        {app_name}.</p>
     <p>Para ter acesso ao sistema você deve clicar no link abaixo
         para confirmar esse email e criar uma senha.</p>
 
@@ -29,12 +29,14 @@ def send_email(token_id, reset_user):
     try:
         sparkpost = SparkPost()
 
+        default_app_name = "INFOSYSTEM"
         default_email_use_sandbox = False
         default_reset_url = 'http://objetorelacional.com.br/#/reset/'
         default_noreply_email = 'noreply@objetorelacional.com.br'
-        default_email_subject = 'PORTAL OBJETO RELACIONAL' + \
-            ' - CONFIRMAR email e CRIAR senha'
+        default_email_subject = 'INFOSYSTEM - CONFIRMAR email e CRIAR senha'
 
+        infosystem_reset_url = os.environ.get(
+            'INFOSYSTEM_APP_NAME', default_app_name)
         infosystem_reset_url = os.environ.get(
             'INFOSYSTEM_RESET_URL', default_reset_url)
         infosystem_noreply_email = os.environ.get(
@@ -50,7 +52,8 @@ def send_email(token_id, reset_user):
         sparkpost.transmissions.send(
             use_sandbox=infosystem_email_use_sandbox,
             recipients=[reset_user.email],
-            html=_HTML_EMAIL_TEMPLATE.format(reset_url=url),
+            html=_HTML_EMAIL_TEMPLATE.format(
+                app_name=default_app_name, reset_url=url),
             from_email=infosystem_noreply_email,
             subject=infosystem_email_subject
         )
