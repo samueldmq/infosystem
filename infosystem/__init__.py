@@ -86,7 +86,7 @@ class System(flask.Flask):
                     name='default')
 
                 role = self.subsystems['roles'].manager.create(
-                    name='admin', domain_id=domain.id)
+                    name='sysadmin', domain_id=domain.id)
 
                 pass256 = hashlib.sha256(b"123456").hexdigest()
                 user = self.subsystems['users'].manager.create(
