@@ -35,7 +35,7 @@ def send_email(token_id, reset_user):
         default_noreply_email = 'noreply@objetorelacional.com.br'
         default_email_subject = 'INFOSYSTEM - CONFIRMAR email e CRIAR senha'
 
-        infosystem_reset_url = os.environ.get(
+        infosystem_app_name = os.environ.get(
             'INFOSYSTEM_APP_NAME', default_app_name)
         infosystem_reset_url = os.environ.get(
             'INFOSYSTEM_RESET_URL', default_reset_url)
@@ -53,7 +53,7 @@ def send_email(token_id, reset_user):
             use_sandbox=infosystem_email_use_sandbox,
             recipients=[reset_user.email],
             html=_HTML_EMAIL_TEMPLATE.format(
-                app_name=default_app_name, reset_url=url),
+                app_name=infosystem_app_name, reset_url=url),
             from_email=infosystem_noreply_email,
             subject=infosystem_email_subject
         )
