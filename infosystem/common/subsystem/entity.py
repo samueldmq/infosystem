@@ -1,10 +1,9 @@
-from datetime import date
-from datetime import datetime
+# from datetime import date
+# from datetime import datetime
 
+# DATE_FMT = '%Y-%m-%d'
+# DATETIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 from infosystem.database import db
-
-DATE_FMT = '%Y-%m-%d'
-DATETIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 class Entity(object):
@@ -35,12 +34,13 @@ class Entity(object):
 
         for attr in self.__class__.attributes:
             value = getattr(self, attr)
-            if stringify and isinstance(value, datetime):
-                d[attr] = value.strftime(DATETIME_FMT)
-            elif stringify and isinstance(value, date):
-                d[attr] = value.strftime(DATETIME_FMT)
-            else:
-                d[attr] = value
+            d[attr] = value
+            # TODO(fdoliveira) Why change format of date and datetime?
+            # if stringify and isinstance(value, datetime):
+            #    d[attr] = value.strftime(DATETIME_FMT)
+            # elif stringify and isinstance(value, date):
+            #    d[attr] = value.strftime(DATETIME_FMT)
+            # else:
 
         include_dict = include_dict or {}
         include_dict.update({attr: {} for attr in self.embedded()})
