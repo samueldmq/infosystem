@@ -28,25 +28,28 @@ class Operation(object):
             raise exception.PreconditionFailed()
 
         if not getattr(session, 'count', None):
-            setattr(session, 'count', 1)
-        else:
-            session.count += 1
+            setattr(session, 'count', 0)
+
+        session.count += 1
 
         try:
             result = self.do(session, **kwargs)
             session.count -= 1
 
+            if session.count == -1:
+                raise exception.FatalError
+
             self.post()
             if session.count == 0:
                 session.commit()
-        except sqlalchemy.exc.IntegrityError:
-            # TODO(samueldmq): integrity error may be something else...
+        except sqlalchemy.exc.IntegrityError as e:
             session.rollback()
-            session.count = 0
-            raise exception.DuplicatedEntity()
+            session.count -= 1
+            msg_info = ''.join(e.args)
+            raise exception.DuplicatedEntity(msg_info)
         except Exception as e:
             session.rollback()
-            session.count = 0
+            session.count -= 1
             raise e
         return result
 

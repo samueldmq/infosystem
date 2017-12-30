@@ -16,6 +16,10 @@ class DuplicatedEntity(InfoSystemException):
     status = 404
     message = 'Entity already exists'
 
+    def __init__(self, message=None):
+        if message is not None:
+            self.message += message
+
 
 class BadRequest(InfoSystemException):
 
@@ -38,3 +42,8 @@ class BadRequestContentType(BadRequest):
 class PreconditionFailed(BadRequest):
 
     message = 'One or more preconditions failed'
+
+
+class FatalError(InfoSystemException):
+
+    message = 'FATAL ERROR'
