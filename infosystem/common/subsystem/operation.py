@@ -37,7 +37,8 @@ class Operation(object):
             session.count -= 1
 
             if session.count == -1:
-                raise exception.FatalError
+                # raise exception.FatalError
+                print('ERRO! SESSION COUNT COULD NOT BE -1')
 
             self.post()
             if session.count == 0:
