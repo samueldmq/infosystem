@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='infosystem',
-    version='0.1.38',
+    version='0.1.39',
     summary='Infosystem Framework',
     url='https://github.com/samueldmq/infosystem',
     author='Samuel de Medeiros Queiroz, Francois Oliveira',
