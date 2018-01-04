@@ -1,9 +1,7 @@
-# from datetime import date
-# from datetime import datetime
-
-# DATE_FMT = '%Y-%m-%d'
-# DATETIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 from infosystem.database import db
+
+DATE_FMT = '%Y-%m-%d'
+DATETIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
 class Entity(object):
