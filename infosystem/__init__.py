@@ -8,7 +8,7 @@ from infosystem import subsystem as subsystem_module
 from infosystem import scheduler
 
 
-ROUTES = [
+POLICYLESS_ROUTES = [
     ('POST', '/users/reset'),
     ('GET', '/users/<id>'),
     ('GET', '/users/routes')
@@ -62,7 +62,10 @@ class System(flask.Flask):
         pass
 
     def inject_dependencies(self):
-        api = lambda: None
+        # api = lambda: None
+        def api():
+            None
+
         for name, subsystem in self.subsystems.items():
             setattr(api, name, subsystem.router.controller.manager)
 
@@ -110,7 +113,8 @@ class System(flask.Flask):
                             cap_mng = self.subsystems['capabilities'].manager
                             capability = cap_mng.create(
                                 domain_id=domain.id, route_id=route_ref.id)
-                            if (route_ref.method, route_ref.url) in ROUTES:
+                            if (route_ref.method, route_ref.url) not in \
+                                    POLICYLESS_ROUTES:
                                 self.subsystems['policies'].manager.create(
                                     capability_id=capability.id,
                                     role_id=role.id)
