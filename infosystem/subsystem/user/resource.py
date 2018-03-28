@@ -9,8 +9,8 @@ class User(entity.Entity, db.Model):
     attributes = ['id', 'domain_id', 'name', 'email', 'active']
 
     domain_id = db.Column(
-        db.CHAR(32), db.ForeignKey("domain.id"), nullable=False)
-    domain = orm.relationship("Domain", backref=orm.backref('users'))
+        db.CHAR(32), db.ForeignKey('domain.id'), nullable=False)
+    domain = orm.relationship('Domain', backref=orm.backref('users'))
     name = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(64), nullable=False)

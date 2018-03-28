@@ -11,7 +11,7 @@ class File(entity.Entity, db.Model):
 
     domain_id = db.Column(
         db.CHAR(32), db.ForeignKey("domain.id"), nullable=True)
-    name = db.Column(db.String(100), nullable=True)
+    name = db.Column(db.String(255), nullable=True)
 
     def __init__(self, id, domain_id, name):
         super().__init__(id)
