@@ -8,6 +8,9 @@ class Request(flask.Request):
 
     # TODO(samueldmq): find a better place to put this utility method
     def _check_uuid4(self, uuid_str):
+        if len(uuid_str) != 32:
+            return False
+
         try:
             return uuid.UUID(uuid_str, version=4)
         except ValueError:
