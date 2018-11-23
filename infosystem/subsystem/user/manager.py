@@ -25,13 +25,13 @@ _HTML_EMAIL_TEMPLATE = """
 """
 
 
-def send_email(token_id, reset_user):
+def send_email(token_id, user, domain):
     try:
         sparkpost = SparkPost()
 
         default_app_name = "INFOSYSTEM"
         default_email_use_sandbox = False
-        default_reset_url = 'http://objetorelacional.com.br/#/reset/'
+        default_reset_url = 'http://objetorelacional.com.br/#/reset'
         default_noreply_email = 'noreply@objetorelacional.com.br'
         default_email_subject = 'INFOSYSTEM - CONFIRMAR email e CRIAR senha'
 
@@ -47,11 +47,12 @@ def send_email(token_id, reset_user):
             'INFOSYSTEM_EMAIL_USE_SANDBOX',
             default_email_use_sandbox) == 'True'
 
-        url = infosystem_reset_url + token_id
+        url = infosystem_reset_url + '?token=' + token_id
+        url = url + '&domain_name=' + domain.name
 
         sparkpost.transmissions.send(
             use_sandbox=infosystem_email_use_sandbox,
-            recipients=[reset_user.email],
+            recipients=[user.email],
             html=_HTML_EMAIL_TEMPLATE.format(
                 app_name=infosystem_app_name, reset_url=url),
             from_email=infosystem_noreply_email,
@@ -70,11 +71,15 @@ class Create(operation.Create):
         self.token = self.manager.api.tokens.create(
             session=session, user=self.entity)
 
+        self.domain = self.manager.api.domains.get(id=self.entity.domain_id)
+        if not self.domain:
+            raise exception.OperationBadRequest()
+
         return self.entity
 
     def post(self):
         # send_reset_password_email(self.token.id, self.entity, _RESET_URL)
-        send_email(self.token.id, self.entity)
+        send_email(self.token.id, self.entity, self.domain)
 
 
 class Update(operation.Update):
@@ -93,8 +98,8 @@ class Update(operation.Update):
 class Restore(operation.Operation):
 
     def pre(self, **kwargs):
-        domain_name = kwargs.get('domain_name', None)
         email = kwargs.get('email', None)
+        domain_name = kwargs.get('domain_name', None)
         infosystem_reset_url = os.environ.get(
             'INFOSYSTEM_RESET_URL', 'http://objetorelacional.com.br/#/reset/')
         self.reset_url = kwargs.get('reset_url', infosystem_reset_url)
@@ -102,23 +107,24 @@ class Restore(operation.Operation):
         if not (domain_name and email and self.reset_url):
             raise exception.OperationBadRequest()
 
-        users = self.manager.api.users.list(email=email)
-        if not users:
-            raise exception.OperationBadRequest()
-
-        self.user = users[0]
-        self.user_id = self.user.id
-
         domains = self.manager.api.domains.list(name=domain_name)
         if not domains:
             raise exception.OperationBadRequest()
 
-        self.domain_id = domains[0].id
+        self.domain = domains[0]
+
+        users = self.manager.api.users.list(
+            email=email, domain_id=self.domain.id)
+        if not users:
+            raise exception.OperationBadRequest()
+
+        self.user = users[0]
+
         return True
 
     def do(self, session, **kwargs):
         token = self.manager.api.tokens.create(user=self.user)
-        send_email(token.id, self.user)
+        send_email(token.id, self.user, self.domain)
 
 
 class Reset(operation.Operation):
