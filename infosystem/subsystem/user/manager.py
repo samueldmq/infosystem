@@ -47,8 +47,7 @@ def send_email(token_id, user, domain):
             'INFOSYSTEM_EMAIL_USE_SANDBOX',
             default_email_use_sandbox) == 'True'
 
-        url = infosystem_reset_url + '?token=' + token_id
-        url = url + '&domain_name=' + domain.name
+        url = infosystem_reset_url + '/' + token_id + '/' + domain.name
 
         sparkpost.transmissions.send(
             use_sandbox=infosystem_email_use_sandbox,
