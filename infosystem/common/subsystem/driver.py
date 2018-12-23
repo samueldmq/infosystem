@@ -43,11 +43,11 @@ class Driver(object):
         session.add(entity)
         session.flush()
 
-    def update(self, id, data, session):
-        try:
-            entity = self.get(id, session)
-        except exc.NoResultFound:
-            raise exception.NotFound()
+    def update(self, entity, data, session):
+        # try:
+        #     entity = self.get(id, session)
+        # except exc.NoResultFound:
+        #     raise exception.NotFound()
 
         for attr in self.resource.embedded():
             if attr in data:

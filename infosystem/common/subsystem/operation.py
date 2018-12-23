@@ -1,7 +1,9 @@
 import uuid
+import flask
 import sqlalchemy
 
 # TODO this import here is so strange
+from datetime import datetime
 from infosystem import database
 from infosystem.common import exception
 
@@ -58,7 +60,17 @@ class Operation(object):
 class Create(Operation):
 
     def pre(self, session, **kwargs):
+        if 'created_at' not in kwargs:
+            kwargs['created_at'] = datetime.now()
+        if 'created_by' not in kwargs:
+            if flask.has_request_context():
+                token_id = flask.request.headers.get('token')
+                if token_id is not None:
+                    token = self.manager.api.tokens.get(id=token_id)
+                    kwargs['created_by'] = token.user_id
+
         self.entity = self.driver.instantiate(id=uuid.uuid4().hex, **kwargs)
+
         return self.entity.is_stable()
 
     def do(self, session, **kwargs):
@@ -87,12 +99,24 @@ class List(Operation):
 class Update(Operation):
 
     def pre(self, session, id, **kwargs):
-        self.id = id
-        return True
+        if id is None:
+            raise exception.BadRequest
+
+        self.entity = self.driver.get(id, session=session)
+
+        self.entity.updated_at = datetime.now()
+        if 'updated_by' not in kwargs:
+            if flask.has_request_context():
+                token_id = flask.request.headers.get('token')
+                if token_id is not None:
+                    token = self.manager.api.tokens.get(id=token_id)
+                    self.entity.updated_by = token.user_id
+
+        return self.entity.is_stable()
 
     def do(self, session, **kwargs):
-        entity = self.driver.update(self.id, kwargs, session=session)
-        return entity
+        self.driver.update(self.entity, kwargs, session=session)
+        return self.entity
 
 
 class Delete(Operation):
