@@ -5,7 +5,8 @@ from infosystem.common.subsystem import entity
 
 class Capability(entity.Entity, db.Model):
 
-    attributes = ['id', 'route_id', 'domain_id']
+    attributes = ['route_id', 'domain_id']
+    attributes += entity.Entity.attributes
 
     route_id = db.Column(
         db.CHAR(32), db.ForeignKey("route.id"), nullable=False)
@@ -15,8 +16,10 @@ class Capability(entity.Entity, db.Model):
     __table_args__ = (
         UniqueConstraint('route_id', 'domain_id', name='capability_uk'),)
 
-    def __init__(self, id, route_id, domain_id):
-        super().__init__(id)
+    def __init__(self, id, route_id, domain_id,
+                 created_at=None, created_by=None,
+                 updated_at=None, updated_by=None):
+        super().__init__(id, created_at, created_by, updated_at, updated_by)
         self.route_id = route_id
         self.domain_id = domain_id
 

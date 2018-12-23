@@ -7,7 +7,8 @@ from infosystem.common.subsystem import entity
 
 class Notification(entity.Entity, db.Model):
 
-    attributes = ['id', 'user_id', 'date', 'subject', 'body', 'read_date']
+    attributes = ['user_id', 'date', 'subject', 'body', 'read_date']
+    attributes += entity.Entity.attributes
 
     user_id = db.Column(
         db.CHAR(32), db.ForeignKey("user.id"), nullable=False)
@@ -19,8 +20,10 @@ class Notification(entity.Entity, db.Model):
         "NotificationTag", backref=orm.backref('notification'),
         cascade='delete,delete-orphan,save-update')
 
-    def __init__(self, id, user_id, date, subject, body, read_date=None):
-        super().__init__(id)
+    def __init__(self, id, user_id, date, subject, body, read_date=None,
+                 created_at=None, created_by=None,
+                 updated_at=None, updated_by=None):
+        super().__init__(id, created_at, created_by, updated_at, updated_by)
         self.user_id = user_id
         self.date = datetime.strptime(date, entity.DATETIME_FMT)
         self.subject = subject

@@ -7,7 +7,8 @@ from infosystem.common.subsystem import entity
 
 class User(entity.Entity, db.Model):
 
-    attributes = ['id', 'domain_id', 'name', 'email', 'active']
+    attributes = ['domain_id', 'name', 'email', 'active']
+    attributes += entity.Entity.attributes
 
     domain_id = db.Column(
         db.CHAR(32), db.ForeignKey('domain.id'), nullable=False)
@@ -23,10 +24,10 @@ class User(entity.Entity, db.Model):
         UniqueConstraint(
             'email', 'domain_id', name='user_email_domain_id_uk'),)
 
-    def __init__(
-            self, id, domain_id, name, email,
-            password=uuid.uuid4().hex, active=True):
-        super().__init__(id)
+    def __init__(self, id, domain_id, name, email, password=uuid.uuid4().hex,
+                 active=True, created_at=None, created_by=None,
+                 updated_at=None, updated_by=None):
+        super().__init__(id, created_at, created_by, updated_at, updated_by)
         self.domain_id = domain_id
         self.name = name
         self.email = email

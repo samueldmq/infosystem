@@ -5,7 +5,8 @@ from infosystem.common.subsystem import entity
 
 class Route(entity.Entity, db.Model):
 
-    attributes = ['id', 'name', 'url', 'method', 'sysadmin', 'bypass']
+    attributes = ['name', 'url', 'method', 'sysadmin', 'bypass']
+    attributes += entity.Entity.attributes
 
     name = db.Column(db.String(100), nullable=False)
     url = db.Column(db.String(80), nullable=False)
@@ -16,10 +17,10 @@ class Route(entity.Entity, db.Model):
 
     __table_args__ = (UniqueConstraint('url', 'method', name='route_uk'),)
 
-    def __init__(
-            self, id, name, url, method, bypass=False, sysadmin=False,
-            active=True):
-        self.id = id
+    def __init__(self, id, name, url, method, bypass=False, sysadmin=False,
+                 active=True, created_at=None, created_by=None,
+                 updated_at=None, updated_by=None):
+        super().__init__(id, created_at, created_by, updated_at, updated_by)
         self.name = name
         self.url = url
         self.method = method

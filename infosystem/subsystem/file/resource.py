@@ -7,13 +7,16 @@ class File(entity.Entity, db.Model):
     # This is required because Oracle dont accept FILE for table name
     __tablename__ = 'file_infosys'
 
-    attributes = ['id', 'domain_id', 'name']
+    attributes = ['domain_id', 'name']
+    attributes += entity.Entity.attributes
 
     domain_id = db.Column(
         db.CHAR(32), db.ForeignKey("domain.id"), nullable=True)
     name = db.Column(db.String(255), nullable=True)
 
-    def __init__(self, id, domain_id, name):
-        super().__init__(id)
+    def __init__(self, id, domain_id, name,
+                 created_at=None, created_by=None,
+                 updated_at=None, updated_by=None):
+        super().__init__(id, created_at, created_by, updated_at, updated_by)
         self.domain_id = domain_id
         self.name = name
