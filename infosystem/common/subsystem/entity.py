@@ -6,21 +6,24 @@ DATETIME_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 class Entity(object):
 
-    attributes = ['id', 'created_at', 'created_by', 'updated_at', 'updated_by']
+    attributes = ['id', 'created_at', 'created_by',
+                  'updated_at', 'updated_by', 'active']
 
     id = db.Column(db.CHAR(32), primary_key=True)
     created_at = db.Column(db.DateTime)
     created_by = db.Column(db.CHAR(32))
     updated_at = db.Column(db.DateTime)
     updated_by = db.Column(db.CHAR(32))
+    active = db.Column(db.Boolean())
 
     def __init__(self, id, created_at=None, created_by=None,
-                 updated_at=None, updated_by=None):
+                 updated_at=None, updated_by=None, active=None):
         self.id = id
         self.created_at = created_at
         self.created_by = created_by
         self.updated_at = updated_at
         self.updated_by = updated_by
+        self.active = active
 
     @classmethod
     def embedded(cls):
