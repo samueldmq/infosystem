@@ -13,9 +13,10 @@ class Grant(entity.Entity, db.Model):
     role_id = db.Column(db.CHAR(32), db.ForeignKey("role.id"), nullable=False)
     role = orm.relationship("Role", backref=orm.backref('grants'))
 
-    def __init__(self, id, user_id, role_id,
+    def __init__(self, id, user_id, role_id, active=True,
                  created_at=None, created_by=None,
                  updated_at=None, updated_by=None):
-        super().__init__(id, created_at, created_by, updated_at, updated_by)
+        super().__init__(id, active, created_at, created_by,
+                         updated_at, updated_by)
         self.user_id = user_id
         self.role_id = role_id

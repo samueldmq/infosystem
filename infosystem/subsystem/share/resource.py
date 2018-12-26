@@ -16,9 +16,10 @@ class Share(entity.Entity, db.Model):
     __table_args__ = (
         UniqueConstraint('capability_id', 'domain_id', name='share_uk'),)
 
-    def __init__(self, id, capability_id, domain_id,
+    def __init__(self, id, capability_id, domain_id, active=True,
                  created_at=None, created_by=None,
                  updated_at=None, updated_by=None):
-        super().__init__(id, created_at, created_by, updated_at, updated_by)
+        super().__init__(id, active, created_at, created_by,
+                         updated_at, updated_by)
         self.capability_id = capability_id
         self.domain_id = domain_id

@@ -9,8 +9,9 @@ class Tag(entity.Entity):
 
     label = db.Column(db.String(50), nullable=False)
 
-    def __init__(self, id, label,
+    def __init__(self, id, label, active=True,
                  created_at=None, created_by=None,
                  updated_at=None, updated_by=None):
-        super().__init__(id, created_at, created_by, updated_at, updated_by)
+        super().__init__(id, active, created_at, created_by,
+                         updated_at, updated_by)
         self.label = label

@@ -13,17 +13,16 @@ class Route(entity.Entity, db.Model):
     method = db.Column(db.String(10), nullable=False)
     bypass = db.Column(db.Boolean(), nullable=False)
     sysadmin = db.Column(db.Boolean(), nullable=False)
-    active = db.Column(db.Boolean(), nullable=False)
 
     __table_args__ = (UniqueConstraint('url', 'method', name='route_uk'),)
 
     def __init__(self, id, name, url, method, bypass=False, sysadmin=False,
                  active=True, created_at=None, created_by=None,
                  updated_at=None, updated_by=None):
-        super().__init__(id, created_at, created_by, updated_at, updated_by)
+        super().__init__(id, active, created_at, created_by,
+                         updated_at, updated_by)
         self.name = name
         self.url = url
         self.method = method
         self.bypass = bypass
         self.sysadmin = sysadmin
-        self.active = active

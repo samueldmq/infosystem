@@ -20,10 +20,11 @@ class Notification(entity.Entity, db.Model):
         "NotificationTag", backref=orm.backref('notification'),
         cascade='delete,delete-orphan,save-update')
 
-    def __init__(self, id, user_id, date, subject, body, read_date=None,
-                 created_at=None, created_by=None,
+    def __init__(self, id, user_id, date, subject, body, active=True,
+                 read_date=None, created_at=None, created_by=None,
                  updated_at=None, updated_by=None):
-        super().__init__(id, created_at, created_by, updated_at, updated_by)
+        super().__init__(id, active, created_at, created_by,
+                         updated_at, updated_by)
         self.user_id = user_id
         self.date = datetime.strptime(date, entity.DATETIME_FMT)
         self.subject = subject
