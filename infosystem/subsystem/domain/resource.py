@@ -11,8 +11,8 @@ class Domain(entity.Entity, db.Model):
     parent_id = db.Column(
         db.CHAR(32), db.ForeignKey("domain.id"), nullable=True)
 
-    def __init__(self, id, name, active=True, parent_id=None,
-                 created_at=None, created_by=None,
+    def __init__(self, id, name, parent_id=None,
+                 active=True, created_at=None, created_by=None,
                  updated_at=None, updated_by=None):
         super().__init__(id, active, created_at, created_by,
                          updated_at, updated_by)
