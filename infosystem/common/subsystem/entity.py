@@ -16,8 +16,8 @@ class Entity(object):
     updated_by = db.Column(db.CHAR(32))
     active = db.Column(db.Boolean())
 
-    def __init__(self, id, created_at=None, created_by=None,
-                 updated_at=None, updated_by=None, active=None):
+    def __init__(self, id, active=True, created_at=None,
+                 created_by=None, updated_at=None, updated_by=None):
         self.id = id
         self.created_at = created_at
         self.created_by = created_by
