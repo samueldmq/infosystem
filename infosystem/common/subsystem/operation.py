@@ -60,6 +60,8 @@ class Operation(object):
 class Create(Operation):
 
     def pre(self, session, **kwargs):
+        if 'id' not in kwargs:
+            kwargs['id'] = uuid.uuid4().hex
         if 'created_at' not in kwargs:
             kwargs['created_at'] = datetime.now()
         if 'created_by' not in kwargs:
@@ -69,7 +71,7 @@ class Create(Operation):
                     token = self.manager.api.tokens.get(id=token_id)
                     kwargs['created_by'] = token.user_id
 
-        self.entity = self.driver.instantiate(id=uuid.uuid4().hex, **kwargs)
+        self.entity = self.driver.instantiate(**kwargs)
 
         return self.entity.is_stable()
 
