@@ -17,6 +17,7 @@ class Create(operation.Operation):
         else:
             domain_name = kwargs.get('domain_name', None)
             username = kwargs.get('username', None)
+            email = kwargs.get('email', None)
             password = kwargs.get('password', None)
 
             # TODO(samueldmq): allow get by unique attrs
@@ -26,10 +27,16 @@ class Create(operation.Operation):
                 return False
 
             domain_id = domains[0].id
+            password_hash = hashlib.sha256(
+                password.encode('utf-8')).hexdigest()
 
-            users = self.manager.api.users.list(
-                domain_id=domain_id, name=username,
-                password=hashlib.sha256(password.encode('utf-8')).hexdigest())
+            if (email is None):
+                users = self.manager.api.users.list(
+                    domain_id=domain_id, name=username, password=password_hash)
+            else:
+                users = self.manager.api.users.list(
+                    domain_id=domain_id, email=email, password=password_hash)
+
             if not users:
                 return False
 
@@ -40,7 +47,9 @@ class Create(operation.Operation):
     def do(self, session, **kwargs):
         # TODO(samueldmq): use self.user.id instead of self.user_id
         token = self.driver.instantiate(
-            id=uuid.uuid4().hex, user_id=self.user.id)
+            id=uuid.uuid4().hex,
+            created_by=self.user.id,
+            user_id=self.user.id)
 
         self.driver.create(token, session=session)
         return token
