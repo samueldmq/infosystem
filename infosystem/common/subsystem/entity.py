@@ -9,7 +9,7 @@ class Entity(object):
     attributes = ['id', 'active', 'created_at', 'created_by',
                   'updated_at', 'updated_by']
 
-    id = db.Column(db.CHAR(32), primary_key=True)
+    id = db.Column(db.CHAR(32), primary_key=True, autoincrement=False)
     active = db.Column(db.Boolean())
     created_at = db.Column(db.DateTime)
     created_by = db.Column(db.CHAR(32))
