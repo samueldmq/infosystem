@@ -24,6 +24,7 @@ class System(flask.Flask):
 
         self.configure()
         self.init_database()
+        self.after_init_database()
 
         subsystem_list = subsystem_module.all + list(
             kwargs.values()) + list(args)
@@ -54,6 +55,9 @@ class System(flask.Flask):
         database.db.init_app(self)
         with self.app_context():
             database.db.create_all()
+
+    def after_init_database(self):
+        pass
 
     def version(self):
         return '1.0.0'
