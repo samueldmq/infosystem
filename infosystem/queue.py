@@ -5,12 +5,12 @@ from pika import BlockingConnection, PlainCredentials, ConnectionParameters
 class RabbitMQ:
 
     def __init__(self):
-        self.url = flask.current_app.config['ORMENU_QUEUE_URL']
-        self.port = flask.current_app.config['ORMENU_QUEUE_PORT']
+        self.url = flask.current_app.config['INFOSYSTEM_QUEUE_URL']
+        self.port = flask.current_app.config['INFOSYSTEM_QUEUE_PORT']
         self.virtual_host = \
-            flask.current_app.config['ORMENU_QUEUE_VIRTUAL_HOST']
-        self.username = flask.current_app.config['ORMENU_QUEUE_USERNAME']
-        self.password = flask.current_app.config['ORMENU_QUEUE_PASSWORD']
+            flask.current_app.config['INFOSYSTEM_QUEUE_VIRTUAL_HOST']
+        self.username = flask.current_app.config['INFOSYSTEM_QUEUE_USERNAME']
+        self.password = flask.current_app.config['INFOSYSTEM_QUEUE_PASSWORD']
         credentials = PlainCredentials(self.username, self.password)
         self.params = ConnectionParameters(
             self.url, self.port, self.virtual_host, credentials)
