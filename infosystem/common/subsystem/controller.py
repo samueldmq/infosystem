@@ -13,41 +13,36 @@ class Controller(object):
         self.resource_wrap = resource_wrap
         self.collection_wrap = collection_wrap
 
-    def create(self):
-        # if not flask.request.is_json:
-        #     return flask.Response(
-        #         response=exception.BadRequestContentType.message,
-        #         status=exception.BadRequestContentType.status)
+    def _filters_parse(self):
+        filters = {
+            k: flask.request.args.get(k) for k in flask.request.args.keys()}
+        # TODO(samueldmq): fix this to work in a better way
+        for k, v in filters.items():
+            if v == 'true':
+                filters[k] = True
+            elif v == 'false':
+                filters[k] = False
+            elif v == 'null':
+                filters[k] = None
 
-        data = flask.request.get_json()
+        return filters
 
-        try:
-            if data:
-                entity = self.manager.create(**data)
-            else:
-                entity = self.manager.create()
-        except exception.InfoSystemException as exc:
-            return flask.Response(response=exc.message,
-                                  status=exc.status)
+    def _filter_args(self, filters):
+        filter_args = {k: v for k, v in filters.items() if '.' in k}
 
-        response = {self.resource_wrap: entity.to_dict()}
+        return filter_args
 
-        return flask.Response(response=json.dumps(response, default=str),
-                              status=201,
-                              mimetype="application/json")
+    def _filters_cleanup(self, filters):
+        _filters_cleanup = filters
 
-    def get(self, id):
-        try:
-            entity = self.manager.get(id=id)
-        except exception.InfoSystemException as exc:
-            return flask.Response(response=exc.message,
-                                  status=exc.status)
+        filter_args = self._filter_args(_filters_cleanup)
+        # clean up original filters
+        for k in filter_args.keys():
+            # NOTE(samueldmq): I'm not sure I can pop
+            # in the list comprehesion above...
+            _filters_cleanup.pop(k)
 
-        response = {self.resource_wrap: entity.to_dict()}
-
-        return flask.Response(response=json.dumps(response, default=str),
-                              status=200,
-                              mimetype="application/json")
+        return _filters_cleanup
 
     def _get_include_dict(self, query_arg, filter_args):
         lists = [l.split('.') for l in query_arg.split(',')]
@@ -74,27 +69,63 @@ class Controller(object):
                     # entity to filter on is not included
                     continue
             current[list[-1]] = v
+
         return include_dict
 
-    def list(self):
-        filters = {
-            k: flask.request.args.get(k) for k in flask.request.args.keys()}
-        # TODO(samueldmq): fix this to work in a better way
-        for k, v in filters.items():
-            if v == 'true':
-                filters[k] = True
-            elif v == 'false':
-                filters[k] = False
-            elif v == 'null':
-                filters[k] = None
+    def _get_include_dicts(self):
+        filters = self._filters_parse()
 
-        include_arg = filters.pop('include', None)
-        filter_args = {k: v for k, v in filters.items() if '.' in k}
-        # clean up original filters
-        for k in filter_args.keys():
-            # NOTE(samueldmq): I'm not sure I can pop
-            # in the list comprehesion above...
-            filters.pop(k)
+        include_args = filters.pop('include', None)
+        filter_args = self._filter_args(filters)
+
+        include_dict = self._get_include_dict(
+            include_args, filter_args) if include_args else {}
+
+        return include_dict
+
+    def create(self):
+        # if not flask.request.is_json:
+        #     return flask.Response(
+        #         response=exception.BadRequestContentType.message,
+        #         status=exception.BadRequestContentType.status)
+
+        data = flask.request.get_json()
+
+        try:
+            if data:
+                entity = self.manager.create(**data)
+            else:
+                entity = self.manager.create()
+        except exception.InfoSystemException as exc:
+            return flask.Response(response=exc.message,
+                                  status=exc.status)
+
+        response = {self.resource_wrap: entity.to_dict()}
+
+        return flask.Response(response=json.dumps(response, default=str),
+                              status=201,
+                              mimetype="application/json")
+
+    def get(self, id):
+        try:
+            entity = self.manager.get(id=id)
+
+            include_dicts = self._get_include_dicts()
+
+            entity_dict = entity.to_dict(include_dict=include_dicts)
+        except exception.InfoSystemException as exc:
+            return flask.Response(response=exc.message,
+                                  status=exc.status)
+
+        response = {self.resource_wrap: entity_dict}
+
+        return flask.Response(response=json.dumps(response, default=str),
+                              status=200,
+                              mimetype="application/json")
+
+    def list(self):
+        filters = self._filters_parse()
+        filters = self._filters_cleanup(filters)
 
         try:
             entities = self.manager.list(**filters)
@@ -102,8 +133,8 @@ class Controller(object):
             return flask.Response(response=exc.message,
                                   status=exc.status)
 
-        include_dict = self._get_include_dict(
-            include_arg, filter_args) if include_arg else {}
+        include_dicts = self._get_include_dicts()
+
         collection = []
         for entity in entities:
             if isinstance(entity, dict):
@@ -111,7 +142,7 @@ class Controller(object):
             else:
                 try:
                     collection.append(
-                        entity.to_dict(include_dict=include_dict))
+                        entity.to_dict(include_dict=include_dicts))
                 except AssertionError:
                     # ignore current entity, filter mismatch
                     pass
