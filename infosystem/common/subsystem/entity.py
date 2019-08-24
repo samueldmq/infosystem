@@ -45,13 +45,14 @@ class Entity(object):
 
         for attr in self.__class__.attributes:
             value = getattr(self, attr)
-            d[attr] = value
-            # TODO(fdoliveira) Why change format of date and datetime?
-            # if stringify and isinstance(value, datetime):
-            #    d[attr] = value.strftime(DATETIME_FMT)
-            # elif stringify and isinstance(value, date):
-            #    d[attr] = value.strftime(DATETIME_FMT)
-            # else:
+            if value is not None:
+                d[attr] = value
+                # TODO(fdoliveira) Why change format of date and datetime?
+                # if stringify and isinstance(value, datetime):
+                #    d[attr] = value.strftime(DATETIME_FMT)
+                # elif stringify and isinstance(value, date):
+                #    d[attr] = value.strftime(DATETIME_FMT)
+                # else:
 
         include_dict = include_dict or {}
         include_dict.update({attr: {} for attr in self.embedded()})
