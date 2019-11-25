@@ -4,6 +4,7 @@ from infosystem.common.subsystem import entity
 
 class File(entity.Entity, db.Model):
 
+    # TODO(fdoliveira) Check in another databases
     # This is required because Oracle dont accept FILE for table name
     __tablename__ = 'file_infosys'
 
