@@ -1,3 +1,5 @@
+import datetime
+
 from infosystem.database import db
 
 DATE_FMT = '%Y-%m-%d'
@@ -39,6 +41,21 @@ class Entity(object):
 
     def is_stable(self):
         return True
+
+    def allDateFmtFromString(dateOrDateTime):
+        dateTime = None
+        if dateOrDateTime is None:
+            try:
+                if len(dateOrDateTime.strip()) == 10:
+                    dateTime = datetime.strptime(
+                        dateOrDateTime, DATE_FMT)
+                else:
+                    dateTime = datetime.strptime(
+                        dateOrDateTime, DATETIME_FMT)
+            except Exception:
+                pass
+
+        return dateTime
 
     def to_dict(self, include_dict=None, stringify=True):
         d = {}
