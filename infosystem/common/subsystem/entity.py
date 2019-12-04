@@ -44,7 +44,7 @@ class Entity(object):
 
     def allDateFmtFromString(dateOrDateTime):
         dateTime = None
-        if dateOrDateTime is None:
+        if dateOrDateTime is not None:
             try:
                 if len(dateOrDateTime.strip()) == 10:
                     dateTime = datetime.strptime(
