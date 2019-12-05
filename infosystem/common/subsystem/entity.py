@@ -42,7 +42,7 @@ class Entity(object):
     def is_stable(self):
         return True
 
-    def allDateFmtFromString(dateOrDateTime):
+    def allDateFmtFromString(self, dateOrDateTime):
         dateTime = None
         if dateOrDateTime is not None:
             try:
