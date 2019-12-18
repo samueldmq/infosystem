@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from infosystem.database import db
 
@@ -49,7 +49,7 @@ class Entity(object):
                 if len(dateOrDateTime.strip()) == 10:
                     dateTime = datetime.strptime(
                         dateOrDateTime, DATE_FMT)
-                else:
+                elif len(dateOrDateTime.strip()) == 24:
                     dateTime = datetime.strptime(
                         dateOrDateTime, DATETIME_FMT)
             except Exception:
