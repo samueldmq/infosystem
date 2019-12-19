@@ -42,18 +42,22 @@ class Entity(object):
     def is_stable(self):
         return True
 
-    def allDateFmtFromString(self, dateOrDateTime):
+    def allDateFmtFromAllTypes(self, dateOrDateTime):
         dateTime = None
         if dateOrDateTime is not None:
-            try:
-                if len(dateOrDateTime.strip()) == 10:
-                    dateTime = datetime.strptime(
-                        dateOrDateTime, DATE_FMT)
-                elif len(dateOrDateTime.strip()) == 24:
-                    dateTime = datetime.strptime(
-                        dateOrDateTime, DATETIME_FMT)
-            except Exception:
-                pass
+            if type(dateOrDateTime) is str:
+                try:
+                    if len(dateOrDateTime.strip()) == 10:
+                        dateTime = datetime.strptime(
+                            dateOrDateTime, DATE_FMT)
+                    elif len(dateOrDateTime.strip()) == 24:
+                        dateTime = datetime.strptime(
+                            dateOrDateTime, DATETIME_FMT)
+                except Exception:
+                    pass
+            else:
+                if type(dateOrDateTime) is datetime:
+                    dateTime = dateOrDateTime
 
         return dateTime
 
