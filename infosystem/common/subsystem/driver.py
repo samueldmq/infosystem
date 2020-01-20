@@ -8,6 +8,14 @@ class Driver(object):
     def __init__(self, resource):
         self.resource = resource
 
+    def removeId(self, entity):
+        new_id = uuid.uuid4().hex
+
+        if entity.get('id') is not None:
+            new_id = entity.pop('id')
+
+        return new_id
+
     def instantiate(self, **kwargs):
         try:
             embedded = {}
@@ -24,20 +32,9 @@ class Driver(object):
                 # TODO(samueldmq): is this good enough? should we discover it?
                 mapped_attr = {self.resource.individual() + '_id': instance.id}
                 if isinstance(value, list):
-                    new_id = None
-                    if len(value) > 0:
-                        if value[0].get('id') is not None:
-                            new_id = value[0].pop('id')
-                    if new_id is None:
-                        setattr(instance, attr, [var.property.mapper.class_(
-                            id=uuid.uuid4().hex, **dict(ref, **mapped_attr))
-                            for ref in value])
-                    else:
-                        if new_id is None:
-                            new_id = uuid.uuid4().hex
-                        setattr(instance, attr, [var.property.mapper.class_(
-                            id=new_id, **dict(ref, **mapped_attr))
-                            for ref in value])
+                    setattr(instance, attr, [var.property.mapper.class_(
+                        id=self.removeId(ref), **dict(ref, **mapped_attr))
+                        for ref in value])
                 else:
                     # TODO(samueldmq): id is inserted here. it is in the
                     # manager for the entities. do it all in the resource
@@ -67,20 +64,9 @@ class Driver(object):
                 # TODO(samueldmq): is this good enough? should we discover it?
                 mapped_attr = {self.resource.individual() + '_id': id}
                 if isinstance(value, list):
-                    new_id = None
-                    if len(value) > 0:
-                        if value[0].get('id') is not None:
-                            new_id = value[0].pop('id')
-                    if new_id is None:
-                        setattr(entity, attr, [var.property.mapper.class_(
-                            id=uuid.uuid4().hex, **dict(ref, **mapped_attr))
-                            for ref in value])
-                    else:
-                        if new_id is None:
-                            new_id = uuid.uuid4().hex
-                        setattr(entity, attr, [var.property.mapper.class_(
-                            id=new_id, **dict(ref, **mapped_attr))
-                            for ref in value])
+                    setattr(entity, attr, [var.property.mapper.class_(
+                        id=self.removeIf(ref), **dict(ref, **mapped_attr))
+                        for ref in value])
                 else:
                     # TODO(samueldmq): id is inserted here. it is in the
                     # manager for the entities. do it all in the resource
