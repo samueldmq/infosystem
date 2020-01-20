@@ -8,11 +8,11 @@ class Driver(object):
     def __init__(self, resource):
         self.resource = resource
 
-    def removeId(self, entity):
+    def removeId(self, entity_aux):
         new_id = uuid.uuid4().hex
 
-        if entity.get('id') is not None:
-            new_id = entity.pop('id')
+        if entity_aux.get('id') is not None:
+            new_id = entity_aux.pop('id')
 
         return new_id
 
@@ -65,7 +65,7 @@ class Driver(object):
                 mapped_attr = {self.resource.individual() + '_id': id}
                 if isinstance(value, list):
                     setattr(entity, attr, [var.property.mapper.class_(
-                        id=self.removeIf(ref), **dict(ref, **mapped_attr))
+                        id=self.removeId(ref), **dict(ref, **mapped_attr))
                         for ref in value])
                 else:
                     # TODO(samueldmq): id is inserted here. it is in the
