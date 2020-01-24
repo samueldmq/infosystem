@@ -38,6 +38,11 @@ class ProducerQueue:
             exchange=self.exchange, routing_key=routing_key, body=body)
         self.close()
 
+    def publish_with_body(self, routing_key, body):
+        self.channel.basic_publish(
+            exchange=self.exchange, routing_key=routing_key, body=body)
+        self.close()
+
     def close(self):
         self.channel.close()
         self.connection.close()
