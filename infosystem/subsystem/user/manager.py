@@ -76,9 +76,9 @@ class Create(operation.Create):
 
         return self.entity
 
-    def post(self):
+    # def post(self):
         # send_reset_password_email(self.token.id, self.entity, _RESET_URL)
-        send_email(self.token.id, self.entity, self.domain)
+        # send_email(self.token.id, self.entity, self.domain)
 
 
 class Update(operation.Update):
