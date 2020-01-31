@@ -1,5 +1,6 @@
 import flask
-from pika import BlockingConnection, PlainCredentials, ConnectionParameters
+from pika import BlockingConnection, PlainCredentials, \
+                 ConnectionParameters, BasicProperties
 
 
 class RabbitMQ:
@@ -18,7 +19,7 @@ class RabbitMQ:
     def connect(self):
         try:
             return BlockingConnection(self.params)
-        except Exception as e:
+        except Exception:
             raise
 
 
@@ -41,6 +42,13 @@ class ProducerQueue:
     def publish_with_body(self, routing_key, body):
         self.channel.basic_publish(
             exchange=self.exchange, routing_key=routing_key, body=body)
+        self.close()
+
+    def publish_body_priority(self, routing_key, body, priority):
+        properties = BasicProperties(priority=priority, type=self.exchange)
+        self.channel.basic_publish(
+            exchange=self.exchange, routing_key=routing_key, body=body,
+            properties=properties)
         self.close()
 
     def close(self):
