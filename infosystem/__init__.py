@@ -14,6 +14,21 @@ POLICYLESS_ROUTES = [
     ('GET', '/users/routes')
 ]
 
+SYSADMIN_RESOURCES = [
+    ('POST', '/domains'),
+    ('PUT', '/domains/<id>'),
+    ('DELETE', '/domains/<id>'),
+    ('LIST', '/domains'),
+
+    ('POST', '/roles'),
+    ('PUT', '/roles/<id>'),
+    ('DELETE', '/roles/<id>'),
+
+    ('POST', '/capabilities'),
+    ('PUT', '/capabilities/<id>'),
+    ('DELETE', '/capabilities/<id>')
+]
+
 
 class System(flask.Flask):
 
@@ -77,6 +92,55 @@ class System(flask.Flask):
         for subsystem in self.subsystems.values():
             subsystem.router.controller.manager.api = api
 
+    def register_all_routes(self, default_domain_id, sysadmin_role_id):
+        # Register all system routes and all non-admin
+        # routes as capabilities in the default domain
+        for subsystem in self.subsystems.values():
+            for route in subsystem.router.routes:
+                route_url = route['url']
+                route_method = route['method']
+                bypass_param = route.get('bypass', False)
+                sysadmin_param = route.get('sysadmin', False)
+                if (route_method, route_url) in SYSADMIN_RESOURCES:
+                    sysadmin_param = True
+                route_ref = self.subsystems['routes'].manager.create(
+                    name=route['action'], url=route_url,
+                    method=route['method'], bypass=bypass_param,
+                    sysadmin=sysadmin_param)
+                # TODO(samueldmq): duplicate the line above here and
+                # see what breaks, it's probably the SQL
+                # session management!
+                if not route_ref.sysadmin:
+                    cap_mng = self.subsystems['capabilities'].manager
+                    capability = cap_mng.create(
+                        domain_id=default_domain_id, route_id=route_ref.id)
+                    if (route_ref.method, route_ref.url) not in \
+                            POLICYLESS_ROUTES:
+                        self.subsystems['policies'].manager.create(
+                            capability_id=capability.id,
+                            role_id=sysadmin_role_id)
+
+    def create_default_domain(self):
+        # Create DEFAULT domain
+        default_domain = self.subsystems['domains'].manager.create(
+            name='default')
+
+        # Create SYSDAMIN role
+        sysadmin_role = self.subsystems['roles'].manager.create(
+            name='sysadmin', domain_id=default_domain.id)
+
+        # Create SYSADMIN user
+        pass256 = hashlib.sha256(b"123456").hexdigest()
+        sysadmin_user = self.subsystems['users'].manager.create(
+            domain_id=default_domain.id, name='sysadmin', password=pass256,
+            email="sysadmin@example.com")
+
+        # Grant SYSADMIN role to SYSADMIN user
+        self.subsystems['grants'].manager.create(
+            user_id=sysadmin_user.id, role_id=sysadmin_role.id)
+
+        self.register_all_routes(default_domain.id, sysadmin_role.id)
+
     def bootstrap(self):
         """Bootstrap the system.
 
@@ -88,37 +152,4 @@ class System(flask.Flask):
 
         with self.app_context():
             if not self.subsystems['domains'].manager.list():
-                # Register default domain
-                domain = self.subsystems['domains'].manager.create(
-                    name='default')
-
-                role = self.subsystems['roles'].manager.create(
-                    name='sysadmin', domain_id=domain.id)
-
-                pass256 = hashlib.sha256(b"123456").hexdigest()
-                user = self.subsystems['users'].manager.create(
-                    domain_id=domain.id, name='sysadmin', password=pass256,
-                    email="sysadmin@example.com")
-                self.subsystems['grants'].manager.create(
-                    user_id=user.id, role_id=role.id)
-
-                # Register all system routes and all non-admin
-                # routes as capabilities in the default domain
-                for subsystem in self.subsystems.values():
-                    for route in subsystem.router.routes:
-                        bypass_param = route.get('bypass', False)
-                        route_ref = self.subsystems['routes'].manager.create(
-                            name=route['action'], url=route['url'],
-                            method=route['method'], bypass=bypass_param)
-                        # TODO(samueldmq): duplicate the line above here and
-                        # see what breaks, it's probably the SQL
-                        # session management!
-                        if not route_ref.sysadmin:
-                            cap_mng = self.subsystems['capabilities'].manager
-                            capability = cap_mng.create(
-                                domain_id=domain.id, route_id=route_ref.id)
-                            if (route_ref.method, route_ref.url) not in \
-                                    POLICYLESS_ROUTES:
-                                self.subsystems['policies'].manager.create(
-                                    capability_id=capability.id,
-                                    role_id=role.id)
+                self.create_default_domain()
