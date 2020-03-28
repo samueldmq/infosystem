@@ -15,10 +15,10 @@ class File(entity.Entity, db.Model):
         db.CHAR(32), db.ForeignKey("domain.id"), nullable=True)
     name = db.Column(db.String(255), nullable=True)
 
-    def __init__(self, id, domain_id, name, active=True,
-                 created_at=None, created_by=None,
-                 updated_at=None, updated_by=None):
+    def __init__(self, id, domain_id, name,
+                 active=True, created_at=None, created_by=None,
+                 updated_at=None, updated_by=None, tag=None):
         super().__init__(id, active, created_at, created_by,
-                         updated_at, updated_by)
+                         updated_at, updated_by, tag)
         self.domain_id = domain_id
         self.name = name

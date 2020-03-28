@@ -39,6 +39,9 @@ class CreateWithGrantedResources(operation.Operation):
 
         self.domain_id = kwargs.get('domain_id')
         self.name = kwargs.get('name')
+        self.tag = None
+        if 'tag' in kwargs:
+            self.tag = kwargs.get('tag')
         self.granted_resources = kwargs.get('granted_resources')
 
         if ((self.domain_id is None) or (self.name is None) or
@@ -50,7 +53,7 @@ class CreateWithGrantedResources(operation.Operation):
     def do(self, session, **kwargs):
 
         self.entity = self.manager.api.roles.create(
-            name=self.name, domain_id=self.domain_id)
+            name=self.name, domain_id=self.domain_id, tag=self.tag)
 
         routes = self.manager.api.routes.list()
 

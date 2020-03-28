@@ -25,9 +25,9 @@ class User(entity.Entity, db.Model):
 
     def __init__(self, id, domain_id, name, email, password=uuid.uuid4().hex,
                  active=True, created_at=None, created_by=None,
-                 updated_at=None, updated_by=None):
+                 updated_at=None, updated_by=None, tag=None):
         super().__init__(id, active, created_at, created_by,
-                         updated_at, updated_by)
+                         updated_at, updated_by, tag)
         self.domain_id = domain_id
         self.name = name
         self.email = email

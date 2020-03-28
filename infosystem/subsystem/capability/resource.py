@@ -16,11 +16,11 @@ class Capability(entity.Entity, db.Model):
     __table_args__ = (
         UniqueConstraint('route_id', 'domain_id', name='capability_uk'),)
 
-    def __init__(self, id, route_id, domain_id, active=True,
-                 created_at=None, created_by=None,
-                 updated_at=None, updated_by=None):
+    def __init__(self, id, route_id, domain_id,
+                 active=True, created_at=None, created_by=None,
+                 updated_at=None, updated_by=None, tag=None):
         super().__init__(id, active, created_at, created_by,
-                         updated_at, updated_by)
+                         updated_at, updated_by, tag)
         self.route_id = route_id
         self.domain_id = domain_id
 
