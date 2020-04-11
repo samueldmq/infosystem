@@ -114,11 +114,12 @@ class System(flask.Flask):
                     cap_mng = self.subsystems['capabilities'].manager
                     capability = cap_mng.create(
                         domain_id=default_domain_id, route_id=route_ref.id)
-                    if (route_ref.method, route_ref.url) not in \
-                            POLICYLESS_ROUTES:
-                        self.subsystems['policies'].manager.create(
-                            capability_id=capability.id,
-                            role_id=sysadmin_role_id)
+                    # TODO(fdoliveira) define why BYPASS atribute for URLs
+                    # if (route_ref.method, route_ref.url) not in \
+                    #        POLICYLESS_ROUTES:
+                    self.subsystems['policies'].manager.create(
+                        capability_id=capability.id,
+                        role_id=sysadmin_role_id)
 
     def create_default_domain(self):
         # Create DEFAULT domain
