@@ -78,7 +78,12 @@ class Entity(object):
                 # else:
 
         include_dict = include_dict or {}
-        include_dict.update({attr: {} for attr in self.embedded()})
+        # Only embedded that are not in include will be updated
+        # include_dict.update({attr: {} for attr in self.embedded()})
+        for attr in self.embedded():
+            if attr not in include_dict:
+                include_dict.update({attr: {}})
+
         if include_dict:
             for key, value in include_dict.items():
                 if not isinstance(value, dict):
