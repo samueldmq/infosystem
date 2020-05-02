@@ -1,3 +1,4 @@
+from enum import Enum
 from datetime import datetime
 
 from infosystem.database import db
@@ -69,7 +70,10 @@ class Entity(object):
         for attr in self.__class__.attributes:
             value = getattr(self, attr)
             if value is not None:
-                d[attr] = value
+                if isinstance(value, Enum):
+                    d[attr] = value.name
+                else:
+                    d[attr] = value
                 # TODO(fdoliveira) Why change format of date and datetime?
                 # if stringify and isinstance(value, datetime):
                 #    d[attr] = value.strftime(DATETIME_FMT)
