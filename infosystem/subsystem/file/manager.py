@@ -9,7 +9,7 @@ from infosystem.common.subsystem import operation
 
 # TODO(samueldmq): put this in the app config
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
+ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv']
 
 
 def allowed_file(filename):
